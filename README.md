@@ -1,5 +1,7 @@
 # SciCanvas
 
+[📘 MANUAL.md](MANUAL.md) • [▶️ SciCanvas.html](SciCanvas.html)
+
 **SciCanvas** is a self-contained, single-file scientific graphics engine that runs entirely in the browser. Write a script in the built-in editor and see the result rendered live on an interactive canvas — no build step, no dependencies to install, no server required.
 
 ```
