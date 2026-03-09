@@ -2,9 +2,9 @@
 
 > **Un'applicazione web monolitica per la grafica scientifica interattiva nel browser.**
 
-[![Licenza: GPL v3](https://img.shields.io/badge/Licenza-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Single File](https://img.shields.io/badge/Formato-Single%20HTML-green.svg)]()
-[![No Install](https://img.shields.io/badge/Installazione-Zero-brightgreen.svg)]()
+![Licenza: GPL v3](https://img.shields.io/badge/Licenza-GPLv3-blue.svg)
+![Single File](https://img.shields.io/badge/Formato-Single%20HTML-green.svg)
+![No Install](https://img.shields.io/badge/Installazione-Zero-brightgreen.svg)
 
 ---
 
@@ -12,9 +12,9 @@
 
 **Nessuna installazione richiesta.** Apri direttamente nel browser:
 
-👉 **[Apri SciCanvas](https://htmlpreview.github.io/?https://github.com/YouDevIt/SciCanvas/blob/main/SciCanvas.html)**
+👉 **[Apri SciCanvas](https://htmlpreview.github.io/?https://raw.githubusercontent.com/YouDevIt/SciCanvas/master/SciCanvas.html)**
 
-Oppure scarica [`SciCanvas.html`](https://github.com/YouDevIt/SciCanvas/blob/main/SciCanvas.html) e aprilo localmente con qualsiasi browser moderno.
+Oppure scarica [`SciCanvas.html`](https://github.com/YouDevIt/SciCanvas/blob/master/SciCanvas.html) e aprilo localmente con qualsiasi browser moderno.
 
 ---
 
@@ -51,7 +51,7 @@ SciCanvas integra **tre ambienti** indipendenti in un singolo file `.html`:
 
 | Risorsa | Link |
 |---------|------|
-| **Manuale completo (HTML)** | [SciCanvas-manual.html](https://htmlpreview.github.io/?https://github.com/YouDevIt/SciCanvas/blob/main/SciCanvas-manual.html) |
+| **Manuale completo (HTML)** | https://htmlpreview.github.io/?https://raw.githubusercontent.com/YouDevIt/SciCanvas/master/SciCanvas-manual.html |
 | **Manuale completo (Markdown)** | [MANUAL.md](MANUAL.md) |
 
 ---
@@ -67,13 +67,3 @@ SciCanvas integra **tre ambienti** indipendenti in un singolo file `.html`:
 ---
 
 ## 📄 Licenza
-
-```
-Copyright © 2026 Leonardo Boselli
-
-Prompt Designer : Leonardo Boselli
-Programmer      : Claude Sonnet 4.6 <https://claude.ai/>
-```
-
-SciCanvas è distribuito sotto licenza **GNU General Public License v3.0**.
-Consulta il file [LICENSE](https://www.gnu.org/licenses/gpl-3.0.html) o visita gnu.org per i dettagli.
