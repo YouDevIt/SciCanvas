@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SciCanvas — Manuale Completo</title>
+<style>
+  :root {
+    --bg: #0e1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --surface3: #21283a;
+    --border: #30363d;
+    --border2: #21262d;
+    --text: #e6edf3;
+    --dim: #8b949e;
+    --dimmer: #484f58;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --teal: #39d0d8;
+    --yellow: #f0c060;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+
+  /* SIDEBAR */
+  #sidebar {
+    position: fixed; top: 0; left: 0;
+    width: 272px; height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 0 0 48px;
+    z-index: 100;
+  }
+  .sidebar-brand {
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid var(--border2);
+    margin-bottom: 8px;
+    position: sticky; top: 0;
+    background: var(--surface);
+    z-index: 1;
+  }
+  .sidebar-brand .logo { font-size: 19px; font-weight: 800; letter-spacing: -.5px; }
+  .sidebar-brand .logo em { color: var(--accent); font-style: normal; }
+  .sidebar-brand .logo span { color: var(--accent); }
+  .sidebar-brand .tagline { font-size: 8.5px; color: var(--dimmer); font-family: monospace; letter-spacing: .08em; margin-top: 3px; }
+  #sidebar nav a {
+    display: block; padding: 5px 20px;
+    color: var(--dim); text-decoration: none;
+    font-size: 12.5px; border-left: 2px solid transparent;
+    transition: all .12s;
+  }
+  #sidebar nav a:hover, #sidebar nav a.active {
+    color: var(--accent); border-left-color: var(--accent);
+    background: rgba(88,166,255,.06);
+  }
+  .nav-section {
+    padding: 14px 20px 4px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: .12em;
+    color: var(--dimmer); text-transform: uppercase;
+  }
+  .nav-sub { padding-left: 34px !important; font-size: 11.5px !important; }
+
+  /* MAIN */
+  #main { margin-left: 272px; min-height: 100vh; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(140deg, #0d1117 0%, #161b22 45%, #1a2436 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 60px 50px;
+  }
+  .hero .logo { font-size: 50px; font-weight: 800; letter-spacing: -2px; margin-bottom: 6px; }
+  .hero .logo em { color: var(--accent); font-style: normal; }
+  .hero .logo span { color: var(--accent); }
+  .hero .tagline { font-size: 10px; color: var(--dimmer); font-family: monospace; letter-spacing: .15em; margin-bottom: 22px; }
+  .hero p { color: var(--dim); max-width: 700px; font-size: 15px; line-height: 1.85; margin-bottom: 12px; }
+  .badges { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 13px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; border: 1px solid;
+    font-family: monospace; letter-spacing: .02em;
+  }
+  .badge-green  { background: rgba(63,185,80,.1);  border-color: rgba(63,185,80,.3);  color: var(--green); }
+  .badge-blue   { background: rgba(88,166,255,.1); border-color: rgba(88,166,255,.3); color: var(--accent); }
+  .badge-purple { background: rgba(188,140,255,.1);border-color: rgba(188,140,255,.3);color: var(--purple); }
+  .badge-orange { background: rgba(210,153,34,.1); border-color: rgba(210,153,34,.3); color: var(--orange); }
+  .badge-teal   { background: rgba(57,208,216,.1); border-color: rgba(57,208,216,.3); color: var(--teal); }
+
+  /* CONTENT */
+  .content { padding: 50px 60px; max-width: 960px; }
+  section { margin-bottom: 72px; }
+
+  h2 {
+    font-size: 24px; font-weight: 800; color: var(--text);
+    margin-bottom: 22px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sec-num {
+    font-size: 11px; font-family: monospace;
+    color: var(--accent); background: rgba(88,166,255,.1);
+    border: 1px solid rgba(88,166,255,.22);
+    border-radius: 4px; padding: 3px 9px;
+  }
+  h3 {
+    font-size: 17px; font-weight: 700; color: var(--text);
+    margin: 36px 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  h3::before {
+    content: ''; display: inline-block;
+    width: 3px; height: 18px;
+    background: var(--accent); border-radius: 2px; flex-shrink: 0;
+  }
+  h4 {
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    margin: 24px 0 8px; text-transform: uppercase; letter-spacing: .08em;
+  }
+  p { color: var(--dim); margin-bottom: 14px; }
+  p strong { color: var(--text); font-weight: 600; }
+  ul, ol { color: var(--dim); margin: 10px 0 16px 22px; line-height: 1.9; }
+  li strong { color: var(--text); }
+  li { margin-bottom: 2px; }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; margin: 16px 0 26px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: var(--surface2); color: var(--text);
+    font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .08em;
+    padding: 10px 15px; text-align: left;
+    border: 1px solid var(--border);
+  }
+  td {
+    padding: 9px 15px; border: 1px solid var(--border2);
+    color: var(--dim); vertical-align: top;
+  }
+  td strong { color: var(--text); }
+  td code { background: rgba(88,166,255,.12); color: var(--accent); padding: 1px 6px; border-radius: 3px; font-family: monospace; font-size: 12px; }
+  tr:nth-child(even) td { background: rgba(255,255,255,.018); }
+
+  /* CODE */
+  pre {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px 24px; margin: 14px 0 24px;
+    overflow-x: auto; font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 13px; color: #e6edf3; line-height: 1.7;
+  }
+  pre .kw  { color: #ff7b72; }
+  pre .fn  { color: #d2a8ff; }
+  pre .str { color: #a5d6ff; }
+  pre .num { color: #79c0ff; }
+  pre .cm  { color: #8b949e; font-style: italic; }
+  pre .op  { color: #ffa657; }
+  pre .var { color: #ffa198; }
+  code {
+    background: rgba(88,166,255,.12); color: var(--accent);
+    padding: 1px 6px; border-radius: 3px;
+    font-family: monospace; font-size: 13px;
+  }
+
+  /* CALLOUT */
+  .callout {
+    border-left: 3px solid; border-radius: 0 8px 8px 0;
+    padding: 13px 18px; margin: 16px 0 20px; font-size: 13.5px; line-height: 1.7;
+  }
+  .callout strong { color: var(--text); }
+  .callout-blue   { border-color: var(--accent);  background: rgba(88,166,255,.07);  color: #a8c7fa; }
+  .callout-green  { border-color: var(--green);   background: rgba(63,185,80,.07);   color: #7ee787; }
+  .callout-orange { border-color: var(--orange);  background: rgba(210,153,34,.07);  color: #f0c060; }
+  .callout-purple { border-color: var(--purple);  background: rgba(188,140,255,.07); color: #d2b0ff; }
+
+  /* MODULE CARDS */
+  .mod-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin: 22px 0 32px; }
+  .mod-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px 20px; transition: border-color .2s, transform .15s;
+  }
+  .mod-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .mod-card .mc-icon { font-size: 32px; margin-bottom: 12px; }
+  .mod-card h4 { font-size: 15px; font-weight: 700; color: var(--text); margin: 0 0 8px; text-transform: none; letter-spacing: normal; }
+  .mod-card p { font-size: 13px; line-height: 1.65; margin: 0; }
+
+  /* KBD */
+  kbd {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-bottom: 2px solid var(--border); border-radius: 4px;
+    padding: 2px 7px; font-family: monospace; font-size: 12px; color: var(--text);
+  }
+
+  /* TAG PILL */
+  .tag {
+    display: inline-block; padding: 2px 9px;
+    border-radius: 12px; font-size: 11px; font-weight: 600;
+    font-family: monospace; letter-spacing: .02em; vertical-align: middle;
+  }
+  .tag-blue   { background: rgba(88,166,255,.12); color: var(--accent); }
+  .tag-green  { background: rgba(63,185,80,.12);  color: var(--green); }
+  .tag-orange { background: rgba(210,153,34,.12); color: var(--orange); }
+  .tag-purple { background: rgba(188,140,255,.12);color: var(--purple); }
+
+  /* LIB TABLE */
+  .lib-row { display: flex; gap: 16px; margin: 16px 0 24px; flex-wrap: wrap; }
+  .lib-item {
+    flex: 1; min-width: 200px;
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 14px 16px;
+  }
+  .lib-item .lib-name { font-weight: 700; color: var(--text); font-size: 14px; }
+  .lib-item .lib-ver  { font-size: 11px; color: var(--dimmer); font-family: monospace; margin-bottom: 6px; }
+  .lib-item p { font-size: 12.5px; margin: 0; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border); padding: 30px 60px;
+    color: var(--dimmer); font-size: 12px; font-family: monospace; line-height: 2.2;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    #main { margin-left: 0; }
+    .hero, .content, footer { padding: 28px 20px; }
+    .mod-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">Sci<em>·</em><span>Canvas</span></div>
+    <div class="tagline">LIVE SCIENTIFIC GRAPHICS ENGINE</div>
+  </div>
+  <nav>
+    <div class="nav-section">Navigazione</div>
+    <a href="#intro">1 · Presentazione</a>
+    <a href="#ui">2 · Interfaccia Generale</a>
+    <a href="#codice">3 · Modulo CODICE</a>
+    <a href="#editor"   class="nav-sub">3.1 Editor</a>
+    <a href="#repl"     class="nav-sub">3.2 REPL Interattivo</a>
+    <a href="#esempi"   class="nav-sub">3.3 Libreria Esempi</a>
+    <a href="#api"      class="nav-sub">3.4 Riferimento API</a>
+    <a href="#script"   class="nav-sub">3.5 Gestione Script</a>
+    <div class="nav-section">API — Categorie</div>
+    <a href="#api" class="nav-sub">🎨 Stato Grafico</a>
+    <a href="#api" class="nav-sub">📐 Primitive &amp; Testo</a>
+    <a href="#api" class="nav-sub">📊 Coordinate &amp; Assi</a>
+    <a href="#api" class="nav-sub">📈 Grafici</a>
+    <a href="#api" class="nav-sub">🔢 Campi &amp; Onde</a>
+    <a href="#api" class="nav-sub">⚙️ Oggetti Fisici</a>
+    <a href="#api" class="nav-sub">📐 LaTeX &amp; Formulario</a>
+    <a href="#api" class="nav-sub">⚛️ Costanti &amp; Unità</a>
+    <a href="#api" class="nav-sub">🎛️ lil-gui UI</a>
+    <a href="#api" class="nav-sub">🧮 CAS Algebrite</a>
+    <a href="#api" class="nav-sub">🎬 Animazione &amp; Input</a>
+    <a href="#sim">4 · Modulo SIM</a>
+    <a href="#sim-corpi"    class="nav-sub">4.1 Corpi Fisici</a>
+    <a href="#sim-vincoli"  class="nav-sub">4.2 Vincoli e Superfici</a>
+    <a href="#sim-forze"    class="nav-sub">4.3 Forze Globali</a>
+    <a href="#sim-integr"   class="nav-sub">4.4 Integratore</a>
+    <a href="#sim-custom"   class="nav-sub">4.5 CustomDraw</a>
+    <a href="#sim-esempi"   class="nav-sub">4.6 Esempi</a>
+    <a href="#sim-save"     class="nav-sub">4.7 Salvataggio Scene</a>
+    <a href="#sim-ctrl"     class="nav-sub">4.8 Controlli</a>
+    <a href="#geo">5 · Modulo GEO</a>
+    <a href="#geo-tools"    class="nav-sub">5.1 Strumenti</a>
+    <a href="#geo-alg"      class="nav-sub">5.2 Vista Algebrica</a>
+    <a href="#geo-nota"     class="nav-sub">5.3 Nota Costruzione</a>
+    <a href="#geo-grid"     class="nav-sub">5.4 Griglia e Scie</a>
+    <a href="#geo-props"    class="nav-sub">5.5 Proprietà</a>
+    <a href="#geo-esempi"   class="nav-sub">5.6 Esempi</a>
+    <a href="#geo-save"     class="nav-sub">5.7 Salvataggio</a>
+    <a href="#geo-nav"      class="nav-sub">5.8 Navigazione</a>
+    <a href="#export">6 · Esportazione</a>
+    <a href="#shortcuts">7 · Scorciatoie</a>
+    <a href="#about">8 · Licenza e Autore</a>
+  </nav>
+</nav>
+
+<div id="main">
+<div class="hero">
+  <div class="logo">Sci<em>·</em><span>Canvas</span></div>
+  <div class="tagline">LIVE SCIENTIFIC GRAPHICS ENGINE — MANUALE COMPLETO</div>
+  <p>
+    SciCanvas è un'applicazione web autocontenuta (singolo file <code>.html</code>) per la creazione e
+    visualizzazione interattiva di grafica scientifica nel browser. Integra un editor di codice JavaScript
+    con API grafica, un simulatore fisico 2D completo e un costruttore di geometria euclidea dinamica —
+    senza richiedere installazioni o dipendenze esterne.
+  </p>
+  <div class="badges">
+    <span class="badge badge-green">⚡ Zero installazione</span>
+    <span class="badge badge-blue">🖥 Single-file HTML</span>
+    <span class="badge badge-purple">📐 3 moduli integrati</span>
+    <span class="badge badge-teal">🔢 CAS simbolico</span>
+    <span class="badge badge-orange">📄 GNU GPL v3.0</span>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════════════════ 1 PRESENTAZIONE -->
+<section id="intro">
+  <h2><span class="sec-num">01</span> Presentazione</h2>
+  <p>
+    <strong>SciCanvas</strong> è progettato per studenti, docenti, ricercatori e appassionati di
+    matematica e fisica che vogliono realizzare visualizzazioni scientifiche di qualità direttamente
+    nel browser. Basta aprire <code>SciCanvas.html</code> in un browser moderno.
+  </p>
+
+  <div class="mod-grid">
+    <div class="mod-card">
+      <div class="mc-icon">⌨</div>
+      <h4>CODICE</h4>
+      <p>Editor JavaScript con API grafica Canvas, REPL JS + CAS, libreria esempi, documentazione API integrata e gestore script personali.</p>
+    </div>
+    <div class="mod-card">
+      <div class="mc-icon">⛛</div>
+      <h4>SIM</h4>
+      <p>Simulatore fisico 2D con corpi rigidi, vincoli cinematici, forze globali configurabili anche come espressioni dinamiche, integratore RK4 e CustomDraw.</p>
+    </div>
+    <div class="mod-card">
+      <div class="mc-icon">△</div>
+      <h4>GEO</h4>
+      <p>Costruttore di geometria euclidea dinamica: spostando un punto le figure dipendenti si aggiornano in tempo reale. Include slider parametrici, vista algebrica e scie.</p>
+    </div>
+  </div>
+
+  <h4>Librerie Esterne Integrate</h4>
+  <div class="lib-row">
+    <div class="lib-item">
+      <div class="lib-name">MathJax</div>
+      <div class="lib-ver">v3 · tex-svg</div>
+      <p>Rendering di formule LaTeX in SVG direttamente sul canvas HTML5.</p>
+    </div>
+    <div class="lib-item">
+      <div class="lib-name">Algebrite</div>
+      <div class="lib-ver">v1.4.0</div>
+      <p>Motore di calcolo simbolico CAS: derivate, integrali, fattorizzazione e semplificazione.</p>
+    </div>
+    <div class="lib-item">
+      <div class="lib-name">lil-gui</div>
+      <div class="lib-ver">v0.19</div>
+      <p>Pannelli UI parametrici interattivi utilizzabili dal codice utente nell'editor.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ 2 INTERFACCIA -->
+<section id="ui">
+  <h2><span class="sec-num">02</span> Interfaccia Generale</h2>
+
+  <h3>Barra di Intestazione (Header)</h3>
+  <p>L'intestazione è sempre visibile e si adatta dinamicamente al modulo attivo.</p>
+
+  <h4>Elementi fissi</h4>
+  <ul>
+    <li><strong>Logo <code>Sci·Canvas</code></strong> e tagline — identificano l'applicazione.</li>
+    <li><strong>Pulsante <code>ⓘ</code></strong> — apre la modale <em>About</em> con autore, ruoli e licenza.</li>
+    <li><strong>Controllo scala (<code>−</code> / <code>+</code>)</strong> — riduce o aumenta la scala dell'intera UI in passi discreti. Il valore percentuale corrente è mostrato tra i due pulsanti. Salvato nel <code>localStorage</code> e ripristinato all'avvio.</li>
+  </ul>
+
+  <h4>Pulsanti modulo CODICE</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pulsante</th><th>Funzione</th></tr></thead>
+    <tbody>
+      <tr><td><code>▶ ESEGUI</code></td><td>Esegue il codice nell'editor (<kbd>Ctrl</kbd>+<kbd>↵</kbd>)</td></tr>
+      <tr><td><code>■ STOP</code></td><td>Ferma il loop di animazione corrente</td></tr>
+      <tr><td><code>⊘ CLEAR</code></td><td>Cancella il contenuto del canvas</td></tr>
+      <tr><td><code>↓ PNG</code></td><td>Esporta il canvas come immagine PNG</td></tr>
+      <tr><td><code>⬡ HTML</code></td><td>Esporta come HTML standalone (senza editor)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Pulsanti modulo SIM</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pulsante / Controllo</th><th>Funzione</th></tr></thead>
+    <tbody>
+      <tr><td><code>▶ AVVIA</code> / <code>⏸ PAUSA</code></td><td>Avvia o sospende la simulazione fisica</td></tr>
+      <tr><td><code>⏭</code> Step</td><td>Avanza di un singolo passo temporale <code>dt</code></td></tr>
+      <tr><td><code>⏮</code> Reset</td><td>Ripristina lo stato iniziale e azzera il tempo</td></tr>
+      <tr><td><code>⊘ Clear</code></td><td>Rimuove tutti i corpi e vincoli dalla scena</td></tr>
+      <tr><td>Display <code>t = 0.000 s</code></td><td>Tempo fisico simulato corrente, aggiornato in real-time</td></tr>
+      <tr><td>Campo <code>vel×</code></td><td>Moltiplicatore velocità di simulazione (0.1× – 20×)</td></tr>
+      <tr><td><code>⬡ HTML</code></td><td>Esporta la simulazione come HTML standalone interattivo</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Pulsanti modulo GEO</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Pulsante</th><th>Funzione</th></tr></thead>
+    <tbody>
+      <tr><td><code>↖ Seleziona</code></td><td>Attiva la modalità selezione e trascinamento punti</td></tr>
+      <tr><td><code>↩ Undo</code></td><td>Annulla l'ultima operazione di costruzione</td></tr>
+      <tr><td><code>⊘ Clear</code></td><td>Cancella tutta la costruzione</td></tr>
+      <tr><td><code>↓ PNG</code></td><td>Esporta la costruzione come immagine PNG</td></tr>
+      <tr><td><code>⬡ HTML</code></td><td>Esporta come HTML standalone interattivo e dinamico</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Barra di Stato del Canvas</h3>
+  <p>Nella parte inferiore del canvas sono presenti indicatori contestuali aggiornati in real-time:</p>
+  <ul>
+    <li><strong>Coordinate cursore</strong> — posizione del mouse nelle unità di sistema (es. <code>x: 2.345, y: -1.200</code>).</li>
+    <li><strong>FPS e frame counter</strong> — visibili durante le animazioni per valutare le prestazioni.</li>
+    <li><strong><code>⌖ RESET</code></strong> — riporta la vista all'origine e allo zoom di default.</li>
+    <li><strong>Indicatori di stato</strong> — <code>◉ PRONTO</code>, <code>○ INATTIVO</code> con messaggi contestuali.</li>
+    <li><strong>Suggerimento</strong> — <code>🖱 TRASCINA: pan · ROTELLA: zoom · Ctrl+↵: esegui</code>.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════ 3 CODICE -->
+<section id="codice">
+  <h2><span class="sec-num">03</span> Modulo CODICE</h2>
+  <p>
+    Il modulo CODICE permette di scrivere ed eseguire JavaScript che disegna sul canvas tramite
+    un'API grafica di alto livello. È organizzato in cinque sotto-schede.
+  </p>
+
+  <h3 id="editor">3.1 Editor</h3>
+  <p>La sotto-scheda <strong>📝 editor</strong> è l'ambiente principale di scrittura.</p>
+  <ul>
+    <li><strong>Syntax highlighting in tempo reale</strong> — parole chiave, numeri, stringhe e commenti colorati tramite un layer sovrapposto all'area di testo, senza latenze percettibili.</li>
+    <li><strong>Numerazione righe</strong> — colonna a sinistra sincronizzata con lo scroll in ogni momento.</li>
+    <li><strong>Indentazione con Tab</strong> — inserisce spazi senza perdere il focus.</li>
+    <li><strong>Drag &amp; drop file</strong> — trascinare un file <code>.js</code> o <code>.txt</code> sull'editor ne carica il contenuto. Un overlay <em>"⬇ Rilascia il file .js / .txt"</em> appare durante il trascinamento.</li>
+    <li><strong>Esecuzione</strong> — pulsante <code>▶ ESEGUI</code> o scorciatoia <kbd>Ctrl</kbd>+<kbd>↵</kbd>.</li>
+    <li><strong>Stop animazione</strong> — <code>■ STOP</code> interrompe il loop <code>requestAnimationFrame</code> impostando <code>animRun = false</code>.</li>
+    <li><strong>Clear canvas</strong> — <code>⊘ CLEAR</code> cancella il canvas senza fermare eventuali animazioni.</li>
+    <li><strong>Ridisegno automatico al resize</strong> — se non è attivo un loop di animazione, la funzione <code>redrawStatic()</code> viene chiamata automaticamente al ridimensionamento della finestra.</li>
+  </ul>
+
+  <h3 id="repl">3.2 REPL Interattivo</h3>
+  <p>La sotto-scheda <strong>⚡ repl</strong> offre un <em>Read-Eval-Print Loop</em> per eseguire espressioni singole istantaneamente.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Modalità</th><th>Pulsante</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>JS</strong></td><td><code>JS</code></td>
+        <td>Valuta espressioni JavaScript nell'ambiente del canvas. Testa funzioni API, ispeziona variabili, invoca comandi grafici istantanei.</td>
+      </tr>
+      <tr>
+        <td><strong>CAS</strong></td><td><code>CAS</code></td>
+        <td>Valuta espressioni di <strong>algebra simbolica</strong> via Algebrite: derivate, integrali, semplificazione, fattorizzazione, espansione, risoluzione simbolica.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h4>Funzionalità UI del REPL</h4>
+  <ul>
+    <li><strong>Namespace <code>_</code></strong> — variabili assegnate come <code>_.nome = valore</code> persistono tra una valutazione e l'altra. La barra <code>replNsBar</code> mostra il contenuto corrente di <code>_</code>.</li>
+    <li><strong>Area di output</strong> — risultati con formattazione distinta per valori, errori e output CAS.</li>
+    <li><strong>Cronologia</strong> — <kbd>↑</kbd>/<kbd>↓</kbd> navigano la cronologia della sessione.</li>
+    <li><strong><code>⊘ Clear</code></strong> — pulisce l'output senza azzerare il namespace.</li>
+    <li><strong><code>? Aiuto</code></strong> — guida sintetica ai comandi e all'API disponibile nel REPL.</li>
+  </ul>
+
+  <h4>Esempi in modalità CAS</h4>
+  <pre><span class="cm">// Derivata simbolica</span>
+<span class="fn">derivative</span>(<span class="fn">sin</span>(x), x)          <span class="cm">→ cos(x)</span>
+
+<span class="cm">// Semplificazione</span>
+<span class="fn">simplify</span>((x^<span class="num">2</span> - <span class="num">1</span>) / (x - <span class="num">1</span>)) <span class="cm">→ x + 1</span>
+
+<span class="cm">// Integrale indefinito</span>
+<span class="fn">integral</span>(x^<span class="num">2</span>, x)               <span class="cm">→ x^3 / 3</span>
+
+<span class="cm">// Fattorizzazione</span>
+<span class="fn">factor</span>(x^<span class="num">3</span> - x^<span class="num">2</span> - x + <span class="num">1</span>)    <span class="cm">→ (x - 1)^2 * (x + 1)</span>
+
+<span class="cm">// Espansione</span>
+<span class="fn">expand</span>((a + b)^<span class="num">3</span>)               <span class="cm">→ a^3 + 3*a^2*b + 3*a*b^2 + b^3</span></pre>
+
+  <h4>Esempi in modalità JS</h4>
+  <pre><span class="fn">drawAxis</span>()
+<span class="fn">plotFunction</span>(x <span class="op">=></span> Math.<span class="fn">sin</span>(x))
+_.f = x <span class="op">=></span> x*x - <span class="num">2</span>*x + <span class="num">1</span>
+<span class="fn">plotFunction</span>(_.f, <span class="op">-</span><span class="num">2</span>, <span class="num">4</span>)</pre>
+
+  <h3 id="esempi">3.3 Libreria Esempi</h3>
+  <p>La sotto-scheda <strong>📚 esempi</strong> contiene script dimostrativi pre-caricati per categoria. Un click carica il codice nell'editor. Coprono tipicamente:</p>
+  <ul>
+    <li>Grafici di funzioni matematiche (trigonometriche, esponenziali, logaritmiche, polinomiali).</li>
+    <li>Curve parametriche, spirali di Archimede, curve di Lissajous, ipotrocoidi.</li>
+    <li>Animazioni in loop con <code>requestAnimationFrame</code>.</li>
+    <li>Formule LaTeX come etichette tipograficamente corrette sul canvas (MathJax).</li>
+    <li>Visualizzazioni di fisica: campi vettoriali, traiettorie, distribuzioni.</li>
+    <li>Grafici di dati, istogrammi, scatter plot, bar chart.</li>
+    <li>Pannelli di controllo parametrici con lil-gui.</li>
+  </ul>
+
+  <h3 id="api">3.4 Riferimento API</h3>
+  <p>
+    La sotto-scheda <strong>📖 api</strong> documenta l'intera API JavaScript disponibile nell'editor,
+    senza bisogno di importazioni. Cliccando su una voce, la firma viene inserita automaticamente
+    nel punto corrente dell'editor (o nel campo REPL se era l'ultima scheda attiva).
+    L'API è organizzata in <strong>13 categorie</strong>.
+  </p>
+
+  <h4>🎨 Stato Grafico</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>bg(color)</code></td><td>Imposta il colore di sfondo del canvas</td></tr>
+      <tr><td><code>clear()</code></td><td>Pulisce il canvas (trasparente)</td></tr>
+      <tr><td><code>fill(color)</code> / <code>noFill()</code></td><td>Imposta il colore di riempimento / disabilita riempimento</td></tr>
+      <tr><td><code>stroke(color)</code> / <code>noStroke()</code></td><td>Imposta il colore del contorno / disabilita contorno</td></tr>
+      <tr><td><code>lineWidth(w)</code></td><td>Spessore della linea di contorno</td></tr>
+      <tr><td><code>alpha(a)</code></td><td>Opacità globale (0–1)</td></tr>
+      <tr><td><code>lineDash([n,n])</code> / <code>noDash()</code></td><td>Abilita tratteggio con pattern [dash, gap] / disabilita</td></tr>
+      <tr><td><code>push()</code> / <code>pop()</code></td><td>Salva / ripristina lo stato grafico corrente</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>📐 Primitive</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>circle(x, y, r)</code></td><td>Cerchio con centro e raggio</td></tr>
+      <tr><td><code>rect(x, y, w, h, r?)</code></td><td>Rettangolo; <code>r</code> opzionale = raggi angoli arrotondati</td></tr>
+      <tr><td><code>ellipse(x, y, rx, ry)</code></td><td>Ellisse con semiassi <code>rx</code>, <code>ry</code></td></tr>
+      <tr><td><code>line(x1, y1, x2, y2)</code></td><td>Segmento tra due punti</td></tr>
+      <tr><td><code>arrow(x1,y1,x2,y2,hs?,col?)</code></td><td>Freccia con punta; <code>hs</code> = dimensione testa, <code>col</code> = colore</td></tr>
+      <tr><td><code>polygon([[x,y]…])</code></td><td>Poligono chiuso da array di vertici</td></tr>
+      <tr><td><code>arc(x,y,r,a1,a2)</code></td><td>Arco di cerchio da angolo <code>a1</code> a <code>a2</code> (rad)</td></tr>
+      <tr><td><code>bezier(...)</code></td><td>Curva di Bézier cubica o quadratica</td></tr>
+      <tr><td><code>point(x,y,r?,col?)</code></td><td>Punto (piccolo cerchio); <code>r</code> e <code>col</code> opzionali</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>✏️ Testo</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>text(str, x, y, opt?)</code></td><td>Testo libero nella posizione data, con opzioni di stile</td></tr>
+      <tr><td><code>label(str,x,y,size?,col?)</code></td><td>Etichetta centrata sul punto dato</td></tr>
+      <tr><td><code>mathText(str,x,y,size?)</code></td><td>Testo con simboli matematici (Unicode)</td></tr>
+      <tr><td><code>font(size,family,style?,w?)</code></td><td>Imposta font: dimensione, famiglia, stile (italic), peso</td></tr>
+      <tr><td><code>textAlign(l|c|r)</code></td><td>Allineamento orizzontale: left / center / right</td></tr>
+      <tr><td><code>textBase(top|mid|bot)</code></td><td>Baseline verticale: top / middle / bottom</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>📊 Coordinate & Assi</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>setCoords(xmin,xmax,ymin,ymax)</code></td><td>Sistema di coordinate matematico (4 argomenti)</td></tr>
+      <tr><td><code>setCoords(xmin,xmax,aspect)</code></td><td>Con aspect ratio; <code>aspect=1</code> → unità quadrate (3 argomenti)</td></tr>
+      <tr><td><code>resetCoords()</code></td><td>Torna al sistema pixel nativo</td></tr>
+      <tr><td><code>axes(opt)</code></td><td>Assi cartesiani con frecce e tick; opzioni: colore, passo, label</td></tr>
+      <tr><td><code>grid(stepX,stepY,color)</code></td><td>Griglia di sfondo con passo e colore configurabili</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>📈 Grafici</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>plot(fn, opt)</code></td><td>Traccia <code>y = f(x)</code>; opzioni: range, colore, spessore, campioni</td></tr>
+      <tr><td><code>plotFill(fn,base,opt)</code></td><td>Area sotto la curva riempita fino a <code>base</code></td></tr>
+      <tr><td><code>parametric(xfn,yfn,opt)</code></td><td>Curva parametrica <code>(x(t), y(t))</code>; opzioni: range t, campioni</td></tr>
+      <tr><td><code>scatter(pts, opt)</code></td><td>Scatter plot da array <code>[[x,y],…]</code>; opzioni: colore, simbolo, size</td></tr>
+      <tr><td><code>barChart(data, opt)</code></td><td>Istogramma a barre da array di valori o <code>{label,value}</code></td></tr>
+      <tr><td><code>gaussian(mu,sigma,opt)</code></td><td>Distribuzione gaussiana normalizzata N(μ, σ)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>🔢 Campi & Onde</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>vectorField(fx,fy,opt)</code></td><td>Campo vettoriale su griglia; <code>fx(x,y)</code>, <code>fy(x,y)</code> = componenti</td></tr>
+      <tr><td><code>streamlines(fx,fy,opt)</code></td><td>Linee di flusso del campo vettoriale</td></tr>
+      <tr><td><code>contour(fn, opt)</code></td><td>Heatmap e/o curve di livello di <code>f(x,y)</code></td></tr>
+      <tr><td><code>electricField(charges,opt)</code></td><td>Campo elettrico generato da array di cariche <code>{x,y,q}</code></td></tr>
+      <tr><td><code>equipotential(charges,opt)</code></td><td>Superfici equipotenziali del campo elettrico</td></tr>
+      <tr><td><code>magneticField(wires,opt)</code></td><td>Campo magnetico generato da fili <code>{x,y,I}</code></td></tr>
+      <tr><td><code>wave(opt)</code></td><td>Onda trasversale animabile; opzioni: ampiezza, lunghezza d'onda, fase</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>⚙️ Oggetti Fisici</h4>
+  <p>Funzioni di disegno per oggetti fisici stilizzati, utili per illustrare problemi di meccanica:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>spring(x1,y1,x2,y2,opt)</code></td><td>Molla stilizzata tra due punti</td></tr>
+      <tr><td><code>pendulum(x0,y0,L,ang,opt)</code></td><td>Pendolo: fulcro <code>(x0,y0)</code>, lunghezza <code>L</code>, angolo <code>ang</code></td></tr>
+      <tr><td><code>mass(x,y,w,h,opt)</code></td><td>Blocco massa rettangolare con etichetta opzionale</td></tr>
+      <tr><td><code>wall(x,y,h,opt)</code></td><td>Parete (ostacolo fisico) tratteggiata</td></tr>
+      <tr><td><code>charge(x,y,q,opt)</code></td><td>Rappresentazione stilizzata di una carica elettrica <code>q</code></td></tr>
+      <tr><td><code>particle(x,y,vx,vy,opt)</code></td><td>Particella con vettore velocità e traccia della traiettoria</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>📐 LaTeX sul Canvas</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>latex(formula, x, y, opt)</code></td><td>Renderizza una formula LaTeX inline nella posizione <code>(x,y)</code></td></tr>
+      <tr><td><code>latexBlock(formula, x, y, opt)</code></td><td>Formula display (grande, centrata) nella posizione <code>(x,y)</code></td></tr>
+      <tr><td><code>clearLatexCache()</code></td><td>Svuota la cache interna delle formule renderizzate</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Opzioni <code>opt</code>:</strong> <code>color</code> (colore testo) · <code>size</code> (fattore di scala: 1=default, 2=doppio) · <code>align</code> (left|center|right) · <code>vAlign</code> (top|middle|bottom)</p>
+  <pre><span class="fn">latex</span>(<span class="str">'E = mc^2'</span>, <span class="num">0</span>, <span class="num">2</span>, { size: <span class="num">1.5</span>, align: <span class="str">'center'</span>, color: <span class="str">'#00d4ff'</span> })
+<span class="fn">latexBlock</span>(<span class="str">'\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}'</span>, <span class="num">0</span>, <span class="num">0</span>)</pre>
+
+  <h4>📐 Formulario Fisico</h4>
+  <p>Database di formule fisiche con risoluzione automatica per la variabile incognita:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>formula(key, given)</code></td><td>Risolve la formula <code>key</code> dati i valori noti → <code>Qty</code> con <code>.formulaSym</code>, <code>.formulaLatex</code>, <code>.cat</code>, <code>.solvedFor</code></td></tr>
+      <tr><td><code>formulaInfo(key)</code></td><td>Metadati: nome, simbolo, LaTeX, variabili, quali si possono risolvere</td></tr>
+      <tr><td><code>formulaList(cat?)</code></td><td>Elenco di tutte le chiavi, filtrabili per categoria</td></tr>
+      <tr><td><code>formulaCategories()</code></td><td>Lista delle categorie di formule disponibili</td></tr>
+      <tr><td><code>formulaSolve(key, var)</code></td><td>Soluzione simbolica della formula via Algebrite</td></tr>
+    </tbody>
+  </table></div>
+  <pre><span class="cm">// 2ª legge di Newton — risolve per F</span>
+<span class="kw">const</span> res = <span class="fn">formula</span>(<span class="str">'newton2'</span>, { m: <span class="num">5</span>, a: <span class="num">9.8</span> })
+<span class="fn">latex</span>(res.formulaLatex, <span class="num">0</span>, <span class="num">1</span>)
+
+<span class="cm">// Gas ideale — risolve per T</span>
+<span class="fn">formula</span>(<span class="str">'ideal_gas'</span>, { P: <span class="num">1e5</span>, V: <span class="num">0.01</span>, n: <span class="num">0.5</span> })</pre>
+
+  <h4>⚛️ Costanti Fisiche & Unità di Misura</h4>
+  <p>Grandezze fisiche con <strong>propagazione automatica dell'incertezza</strong> (CODATA):</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>physConst('c')</code></td><td>Costante fisica per chiave → <code>Qty</code> con incertezza CODATA</td></tr>
+      <tr><td><code>physConst('Fe')</code></td><td>Elemento chimico → oggetto con <code>.z</code> (numero atomico) e proprietà</td></tr>
+      <tr><td><code>astroBody('Mars')</code></td><td>Corpo celeste → <code>{ M, R, g, T, d, P, … }</code></td></tr>
+      <tr><td><code>val(v, unit, unc?)</code></td><td>Crea una grandezza <code>Qty</code> con valore, unità e incertezza</td></tr>
+      <tr><td><code>val('3.5 ± 0.01 m')</code></td><td>Parsa una stringa con valore, incertezza e unità</td></tr>
+      <tr><td><code>convert(v, 'from', 'to')</code></td><td>Converte un numero tra unità → restituisce numero</td></tr>
+      <tr><td><code>listConst(filtro?)</code></td><td>Cerca chiavi nel database delle costanti</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Metodi dell'oggetto <code>Qty</code>:</strong></p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Metodo</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>q.to('km')</code></td><td>Converte in un'altra unità → nuovo <code>Qty</code></td></tr>
+      <tr><td><code>q.mul(r)</code> / <code>q.div(r)</code></td><td>× / ÷ con propagazione dell'errore</td></tr>
+      <tr><td><code>q.add(r)</code> / <code>q.sub(r)</code></td><td>+ / − (stesse dimensioni fisiche)</td></tr>
+      <tr><td><code>q.pow(n)</code> / <code>q.sqrt()</code></td><td>Potenza e radice con propagazione dell'errore</td></tr>
+      <tr><td><code>q.inSI()</code></td><td>Converte nelle unità SI base</td></tr>
+      <tr><td><code>q.toString()</code></td><td>Stringa <code>valore ± errore unità</code></td></tr>
+      <tr><td><code>q.toStr(sf?, unit?)</code></td><td>Stringa con controllo cifre significative</td></tr>
+      <tr><td><code>q.toLaTeX(sf?, unit?)</code></td><td>Stringa LaTeX per uso con <code>latex()</code></td></tr>
+      <tr><td><code>q.format(dec, unit?)</code></td><td>Notazione fissa con numero fisso di decimali</td></tr>
+      <tr><td><code>q.uncertainty</code></td><td>Incertezza assoluta 1σ in unità SI</td></tr>
+      <tr><td><code>qmul/qdiv/qadd/qsub/qpow/qsqrt</code></td><td>Approccio funzionale alternativo</td></tr>
+    </tbody>
+  </table></div>
+  <pre><span class="kw">const</span> m = <span class="fn">val</span>(<span class="str">'10.0 ± 0.1 kg'</span>)
+<span class="kw">const</span> a = <span class="fn">val</span>(<span class="str">'9.81 ± 0.02 m/s^2'</span>)
+<span class="kw">const</span> F = m.<span class="fn">mul</span>(a)
+<span class="fn">text</span>(F.<span class="fn">toStr</span>(<span class="num">3</span>), <span class="num">0</span>, <span class="num">0</span>)   <span class="cm">// "98.1 ± 1.2 N"</span>
+<span class="fn">latex</span>(F.<span class="fn">toLaTeX</span>(<span class="num">3</span>), <span class="num">0</span>, <span class="op">-</span><span class="num">1</span>)</pre>
+
+  <h4>🎛️ Interfaccia Utente — lil-gui</h4>
+  <p>Pannelli di controllo interattivi sovrapposti al canvas:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>createUI(opt?)</code></td><td>Crea un pannello; opzioni: <code>title</code>, <code>width</code>, <code>top</code>, <code>right</code>, <code>left</code></td></tr>
+      <tr><td><code>ui.slider(lbl,init,min,max,stp?)</code></td><td>Slider numerico → leggi con <code>.value</code></td></tr>
+      <tr><td><code>ui.number(lbl,init,min?,max?)</code></td><td>Campo numerico editabile → <code>.value</code></td></tr>
+      <tr><td><code>ui.checkbox(lbl,init)</code></td><td>Checkbox booleana → <code>.value</code> (bool)</td></tr>
+      <tr><td><code>ui.color(lbl,init)</code></td><td>Color picker → <code>.value</code> (hex <code>#rrggbb</code>)</td></tr>
+      <tr><td><code>ui.text(lbl,init)</code></td><td>Campo testo libero → <code>.value</code></td></tr>
+      <tr><td><code>ui.select(lbl,init,opts[])</code></td><td>Menu a tendina → <code>.value</code></td></tr>
+      <tr><td><code>ui.button(lbl,fn)</code></td><td>Pulsante con callback <code>fn()</code></td></tr>
+      <tr><td><code>ui.label(lbl,text)</code></td><td>Etichetta di sola lettura</td></tr>
+      <tr><td><code>ui.folder(name)</code></td><td>Sottogruppo collassabile → stessa API di <code>ui</code></td></tr>
+      <tr><td><code>ui.separator()</code></td><td>Linea divisoria visiva</td></tr>
+      <tr><td><code>ui.open()</code> / <code>ui.close()</code></td><td>Espande / comprime il pannello</td></tr>
+      <tr><td><code>ctrl.value = v</code></td><td>Aggiorna il valore di un controllo da codice</td></tr>
+    </tbody>
+  </table></div>
+  <pre><span class="kw">const</span> ui   = <span class="fn">createUI</span>({ title: <span class="str">'Parametri'</span>, width: <span class="num">220</span> })
+<span class="kw">const</span> freq = ui.<span class="fn">slider</span>(<span class="str">'Frequenza'</span>, <span class="num">1</span>, <span class="num">0.1</span>, <span class="num">10</span>, <span class="num">0.1</span>)
+<span class="kw">const</span> col  = ui.<span class="fn">color</span>(<span class="str">'Colore'</span>, <span class="str">'#00d4ff'</span>)
+<span class="fn">animate</span>(t => {
+  <span class="fn">bg</span>(<span class="str">'#000'</span>); <span class="fn">stroke</span>(col.value)
+  <span class="fn">plot</span>(x => Math.<span class="fn">sin</span>(freq.value * x))
+})</pre>
+
+  <h4>🧮 CAS — Algebrite (dall'editor)</h4>
+  <p>Accesso al motore di calcolo simbolico direttamente dal codice dell'editor:</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>calc(expr)</code></td><td>Esegue un'espressione CAS → <code>{ text, latex }</code></td></tr>
+      <tr><td><code>calc('d(x^2,x)')</code></td><td>Derivata → <code>"2*x"</code></td></tr>
+      <tr><td><code>calc('integral(x^2,x)')</code></td><td>Integrale indefinito</td></tr>
+      <tr><td><code>calc('factor(x^3-1)')</code></td><td>Fattorizzazione</td></tr>
+      <tr><td><code>calc('expand((x+1)^4)')</code></td><td>Espansione polinomiale</td></tr>
+      <tr><td><code>calc('simplify(sin(x)^2+cos(x)^2)')</code></td><td>Semplificazione</td></tr>
+      <tr><td><code>calc('lim(sin(x)/x,x,0)')</code></td><td>Limite per x → 0</td></tr>
+      <tr><td><code>calc('roots(x^2-5*x+6,x)')</code></td><td>Radici/zeri del polinomio</td></tr>
+      <tr><td><code>calc('nroots(x^3-2,x)')</code></td><td>Radici numeriche</td></tr>
+      <tr><td><code>calc('solve(x^2=4,x)')</code></td><td>Risolve un'equazione</td></tr>
+      <tr><td><code>calc('subst(x=2, x^3+1)')</code></td><td>Sostituisce un valore nell'espressione</td></tr>
+      <tr><td><code>calc('taylor(sin(x),x,0,5)')</code></td><td>Sviluppo di Taylor all'ordine 5</td></tr>
+      <tr><td><code>calc('eigenvalues([[1,2],[3,4]])')</code></td><td>Autovalori di una matrice</td></tr>
+      <tr><td><code>calc('transpose([[1,2],[3,4]])')</code></td><td>Trasposta di una matrice</td></tr>
+      <tr><td><code>calc('det([[a,b],[c,d]])')</code></td><td>Determinante (anche simbolico)</td></tr>
+      <tr><td><code>calc('gcd(12,8)')</code></td><td>Massimo Comun Divisore</td></tr>
+      <tr><td><code>calc('lcm(4,6)')</code></td><td>Minimo Comune Multiplo</td></tr>
+      <tr><td><code>calc('isprime(17)')</code></td><td>Test di primalità</td></tr>
+      <tr><td><code>calc('sum(k,k,1,10)')</code></td><td>Sommatoria Σk per k=1..10</td></tr>
+      <tr><td><code>calc('printlatex(expr)')</code></td><td>Converte l'espressione in stringa LaTeX</td></tr>
+      <tr><td><code>res.text</code> / <code>res.latex</code></td><td>Risultato come testo / come LaTeX (per <code>latex()</code>)</td></tr>
+    </tbody>
+  </table></div>
+  <pre><span class="cm">// Calcola la derivata e la disegna sul canvas</span>
+<span class="kw">const</span> der = <span class="fn">calc</span>(<span class="str">'d(sin(x)*exp(-x/3), x)'</span>)
+<span class="fn">latex</span>(der.latex, <span class="num">0</span>, <span class="num">2</span>, { size: <span class="num">1.4</span>, align: <span class="str">'center'</span> })
+
+<span class="cm">// Sviluppo di Taylor e testo</span>
+<span class="kw">const</span> t5 = <span class="fn">calc</span>(<span class="str">'taylor(sin(x),x,0,5)'</span>)
+<span class="fn">text</span>(<span class="str">'Taylor: '</span> + t5.text, <span class="num">0</span>, <span class="op">-</span><span class="num">2</span>)</pre>
+
+  <h4>🎬 Animazione & Input</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>animate(fn(t,dt,frame))</code></td><td>Avvia il loop; <code>fn</code> riceve tempo <code>t</code> (s), delta <code>dt</code> (s) e numero frame</td></tr>
+      <tr><td><code>stop()</code></td><td>Ferma il loop di animazione</td></tr>
+      <tr><td><code>onMouseMove(fn(x,y))</code></td><td>Callback al movimento del mouse (coordinate del sistema corrente)</td></tr>
+      <tr><td><code>onClick(fn(x,y,btn))</code></td><td>Callback al click; <code>btn</code> = 0 (sinistro) / 1 (medio) / 2 (destro)</td></tr>
+      <tr><td><code>onKeyDown(fn(key))</code></td><td>Callback alla pressione di un tasto; <code>key</code> = stringa del tasto</td></tr>
+      <tr><td><code>getMouse()</code></td><td>Stato corrente del mouse → <code>{x, y, down}</code></td></tr>
+      <tr><td><code>getKeys()</code></td><td>Insieme dei tasti attualmente premuti</td></tr>
+    </tbody>
+  </table></div>
+  <pre><span class="fn">animate</span>((t, dt) => {
+  <span class="fn">bg</span>(<span class="str">'#111'</span>)
+  <span class="kw">const</span> m = <span class="fn">getMouse</span>()
+  <span class="fn">fill</span>(<span class="str">'#00d4ff'</span>)
+  <span class="fn">circle</span>(m.x, m.y, <span class="num">0.3</span>)   <span class="cm">// cerchio segue il cursore</span>
+})</pre>
+
+  <h4>🧮 Matematica & Utilità</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione / Costante</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>W()</code> / <code>H()</code></td><td>Larghezza / altezza del canvas in pixel</td></tr>
+      <tr><td><code>PI</code>, <code>TAU</code>, <code>E</code></td><td>Costanti matematiche (π, 2π, e)</td></tr>
+      <tr><td><code>sin, cos, tan, atan2, …</code></td><td>Funzioni trigonometriche standard</td></tr>
+      <tr><td><code>sqrt, pow, exp, log, …</code></td><td>Funzioni matematiche standard</td></tr>
+      <tr><td><code>random(a,b)</code></td><td>Numero casuale uniforme nell'intervallo [a,b]</td></tr>
+      <tr><td><code>map(v,a,b,c,d)</code></td><td>Rimappa <code>v</code> dall'intervallo [a,b] a [c,d]</td></tr>
+      <tr><td><code>lerp(a,b,t)</code></td><td>Interpolazione lineare: <code>a + (b-a)*t</code></td></tr>
+      <tr><td><code>clamp(v,min,max)</code></td><td>Limita <code>v</code> all'intervallo [min,max]</td></tr>
+      <tr><td><code>getTime()</code></td><td>Tempo corrente in secondi dall'avvio</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="script">3.5 Gestione Script</h3>
+  <p>La sotto-scheda <strong>💾 script</strong> è un gestore di script personali con persistenza nel <code>localStorage</code>.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Azione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><strong>💾 Salva</strong></td><td>Apre una modale per assegnare un nome (max 80 caratteri) e salvare lo script. Se esiste già un nome uguale, viene sovrascritto.</td></tr>
+      <tr><td><strong>⬇ Download</strong></td><td>Scarica lo script selezionato come file <code>.js</code>/<code>.txt</code>.</td></tr>
+      <tr><td><strong>⬆ Upload</strong></td><td>Carica uno script da file locale (<code>.js</code>, <code>.txt</code>, <code>.sc</code>) nell'editor.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout callout-orange">
+    <strong>Attenzione:</strong> gli script sono nel <code>localStorage</code> del browser. Cancellare la cache li elimina.
+    Usare <strong>Download</strong> per conservare copie permanenti dei lavori importanti.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════ 4 SIM -->
+<section id="sim">
+  <h2><span class="sec-num">04</span> Modulo SIM — Simulatore Fisico 2D</h2>
+  <p>
+    Il modulo <strong>⛛ SIM</strong> è un simulatore fisico bidimensionale completo. Permette di costruire
+    scene con corpi rigidi, vincoli meccanici e forze globali, e di osservarne l'evoluzione tramite
+    integrazione numerica RK4.
+  </p>
+
+  <h3 id="sim-corpi">4.1 Corpi Fisici</h3>
+  <p>
+    Si aggiungono selezionando lo strumento dalla <strong>palette Corpi</strong> e cliccando sul canvas.
+    Le proprietà fisiche sono configurabili nel <strong>Pannello Proprietà</strong>, visibile quando il corpo è selezionato.
+  </p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Strumento</th><th>Icona</th><th>Descrizione fisica</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Selezione</strong></td><td><code>↖</code></td><td>Seleziona corpi esistenti e trascinali per riposizionarli. Non aggiunge nuovi oggetti.</td></tr>
+      <tr><td><strong>Particella</strong></td><td><code>●</code></td><td>Massa puntiforme (I = 0). Ideale per proiettili, orbite, moto browniano, particelle in campo EM.</td></tr>
+      <tr><td><strong>Blocco</strong></td><td><code>⮬</code></td><td>Corpo rettangolare rigido con massa distribuita uniformemente. Reagisce a forze, coppie e collisioni con rotazione.</td></tr>
+      <tr><td><strong>Sfera</strong></td><td><code>◉</code></td><td>Corpo circolare, inerzia di sfera piena: <strong>I = ²⁄₅ mr²</strong>. Collisioni elastiche e anelastiche configurabili.</td></tr>
+      <tr><td><strong>Cilindro</strong></td><td><code>⬤</code></td><td>Corpo circolare, inerzia di cilindro pieno: <strong>I = ½ mr²</strong>. Utile per rulli e dischi rotolanti.</td></tr>
+      <tr><td><strong>Asta</strong></td><td><code>━</code></td><td>Corpo allungato rigido, inerzia di asta: <strong>I = ¹⁄₁₂ mL²</strong>. Fondamentale per pendoli, leve, bracci articolati.</td></tr>
+      <tr><td><strong>Anello</strong></td><td><code>○</code></td><td>Corpo circolare cavo, inerzia di anello: <strong>I = mr²</strong>. Utile per confronti dinamici con sfera e cilindro.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Proprietà configurabili (pannello Properties)</h4>
+  <ul>
+    <li>Massa <code>m</code> (kg) e dimensioni geometriche</li>
+    <li>Posizione iniziale <code>x</code>, <code>y</code> (m) e orientamento iniziale (rad)</li>
+    <li>Velocità lineare iniziale <code>vx</code>, <code>vy</code> (m/s) e angolare (rad/s)</li>
+    <li>Coefficiente di restituzione (0 = anelastico, 1 = elastico)</li>
+    <li>Coefficiente di attrito e colore/stile visivo</li>
+  </ul>
+
+  <h3 id="sim-vincoli">4.2 Vincoli e Superfici</h3>
+  <p>Definiscono relazioni cinematiche tra corpi o tra corpo e ambiente. Si aggiungono dalla <strong>palette Vincoli</strong>.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Strumento</th><th>Icona</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Punto fisso</strong></td><td><code>📌</code></td><td>Ancora un punto del corpo a una posizione fissa: permette la rotazione ma impedisce la traslazione. Essenziale per pendoli, ruote, strutture ancorate.</td></tr>
+      <tr><td><strong>Perno</strong></td><td><code>🔘</code></td><td>Collega due corpi con un perno rotante (cerniera): trasmette forze ma permette rotazione reciproca libera.</td></tr>
+      <tr><td><strong>Distanza</strong></td><td><code>↔</code></td><td>Mantiene costante la distanza tra due punti: si comporta come un'asta rigida inestensibile o un cavo teso.</td></tr>
+      <tr><td><strong>Cerniera</strong></td><td><code>🔗</code></td><td>Variante del perno con angolo di riposo e rigidità torsionale configurabili (snodo elastico).</td></tr>
+      <tr><td><strong>Guida H</strong></td><td><code>⟶</code></td><td>Il corpo scorre solo lungo una guida orizzontale (solo X). Simula binari, pistoni, carrelli orizzontali.</td></tr>
+      <tr><td><strong>Guida V</strong></td><td><code>⟵</code></td><td>Come Guida H ma in direzione verticale (solo Y).</td></tr>
+      <tr><td><strong>Guida Ang</strong></td><td><code>⟳</code></td><td>Guida orientata a un angolo arbitrario: il corpo scorre solo lungo la direzione specificata.</td></tr>
+      <tr><td><strong>Piano</strong></td><td><code>⬜</code></td><td>Piano di contatto orizzontale (pavimento/soffitto) con collisioni fisiche e attrito.</td></tr>
+      <tr><td><strong>Inclinato</strong></td><td><code>╱</code></td><td>Piano inclinato a un angolo configurabile. Simula rampe, scivoli, superfici oblique.</td></tr>
+      <tr><td><strong>Fune</strong></td><td><code>〜</code></td><td>Vincolo di lunghezza massima (solo trazione): passivo quando allentato, si tende quando i punti raggiungerebbero il limite di distanza.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="sim-forze">4.3 Forze Globali</h3>
+  <p>
+    Campi di forza che agiscono su <strong>tutti i corpi</strong> della scena simultaneamente.
+    Ogni campo si attiva/disattiva con una checkbox. Il valore può essere una
+    <strong>costante numerica</strong> o un'<strong>espressione dinamica</strong> che dipende da
+    <code>x</code>, <code>y</code> (posizione del corpo in m) e <code>t</code> (tempo simulato in s).
+  </p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Campo</th><th>Simbolo</th><th>Unità</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Gravità</strong></td><td><code>g</code></td><td>m/s²</td><td>Accelerazione gravitazionale verso il basso. Default: <code>9.81</code>. Può essere un'espressione come <code>sin(t)</code> per gravità oscillante.</td></tr>
+      <tr><td><strong>Campo E</strong></td><td><code>Ex</code>, <code>Ey</code></td><td>N/C</td><td>Campo elettrico nelle due componenti. Supporta espressioni spaziali (es. <code>sin(y)</code>, <code>-0.5*x</code>).</td></tr>
+      <tr><td><strong>Campo B</strong></td><td><code>Bz</code></td><td>T</td><td>Campo magnetico perpendicolare al piano. Genera la forza di Lorentz sulle particelle in moto. Può dipendere da <code>t</code>.</td></tr>
+      <tr><td><strong>Attrito viscoso</strong></td><td><code>b</code></td><td>N·s/m</td><td>Forza proporzionale e opposta alla velocità (smorzamento lineare). Simula resistenza dell'aria o fluido viscoso.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Variabili nelle espressioni</h4>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Variabile</th><th>Significato</th></tr></thead>
+    <tbody>
+      <tr><td><code>x</code>, <code>y</code></td><td>Posizione attuale del corpo in metri</td></tr>
+      <tr><td><code>t</code></td><td>Tempo fisico simulato corrente in secondi</td></tr>
+      <tr><td colspan="2">Funzioni disponibili: <code>sin cos tan sqrt exp log abs pow PI</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Esempi di espressioni avanzate</h4>
+  <pre><span class="var">g</span>  = <span class="num">9.81</span> + <span class="num">2</span>*<span class="fn">sin</span>(t)   <span class="cm">// gravità oscillante nel tempo</span>
+<span class="var">Ex</span> = <span class="op">-</span><span class="num">0.5</span>*x             <span class="cm">// forza elastica verso l'origine</span>
+<span class="var">Bz</span> = <span class="num">1.5</span>               <span class="cm">// campo magnetico costante</span>
+<span class="var">b</span>  = <span class="num">0.1</span>*<span class="fn">exp</span>(<span class="op">-</span>t)       <span class="cm">// attrito che decade esponenzialmente</span></pre>
+
+  <h3 id="sim-integr">4.4 Integratore Numerico</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Parametro</th><th>Dettaglio</th></tr></thead>
+    <tbody>
+      <tr><td><strong>dt — passo temporale</strong></td><td>Intervallo in secondi. Range: <code>0.0001</code>–<code>0.05</code> s, default <code>0.005</code> s. Valori piccoli = più precisione ma più lento; valori grandi = più veloce ma potenzialmente instabile.</td></tr>
+      <tr><td><strong>Metodo: RK4</strong></td><td>Runge-Kutta al <strong>4° ordine</strong>: errore locale O(dt⁵), molto più stabile del metodo di Eulero per sistemi fisici realistici.</td></tr>
+      <tr><td><strong>Mostra v</strong> (checkbox)</td><td>Sovrappone al canvas i <strong>vettori velocità</strong> di ogni corpo (frecce proporzionali a modulo e direzione). Utile per analizzare cinematica e conservazione del momento.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout callout-blue">
+    <strong>Suggerimento:</strong> per simulazioni stabili con vincoli rigidi e alta rigidità, usare
+    <code>dt</code> piccoli (0.001–0.002 s). Per simulazioni qualitative a lungo termine, è possibile
+    aumentare il <code>dt</code> e usare il moltiplicatore <code>vel×</code> per accelerare.
+  </div>
+
+  <h3 id="sim-custom">4.5 CustomDraw</h3>
+  <p>
+    La sezione <strong>CustomDraw</strong> permette di sovrapporre codice JavaScript personalizzato
+    di disegno, eseguito a ogni frame del loop di simulazione.
+  </p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Controllo</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><strong>✏️ Modifica</strong></td><td>Apre un editor modale per scrivere la funzione di disegno. Il codice ha accesso al contesto canvas e allo stato completo della simulazione (posizioni, velocità, tempo <code>t</code>).</td></tr>
+      <tr><td><strong>✕ Rimuovi</strong></td><td>Elimina il codice CustomDraw corrente.</td></tr>
+    </tbody>
+  </table></div>
+  <p>
+    <strong>Utilizzo tipico:</strong> grafici in tempo reale di grandezze fisiche (energia cinetica vs. tempo),
+    tracce di traiettoria, visualizzazione di campi, annotazioni e misure sovrapposte alla scena simulata.
+  </p>
+
+  <h3 id="sim-esempi">4.6 Esempi Precaricati</h3>
+  <p>Libreria di scene fisiche organizzata per tema, accessibile dal pannello laterale.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Categoria</th><th>Scene disponibili</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Meccanica classica</strong></td><td>Pendolo semplice · Pendolo con asta rigida · Moto del proiettile · Sfera su piano inclinato</td></tr>
+      <tr><td><strong>Oscillazioni e Caos</strong></td><td>Oscillatore massa-molla · Doppio pendolo (caotico) · Attrito volvente · Pendoli accoppiati · Attrattore di Lorenz</td></tr>
+      <tr><td><strong>Elettromagnetismo</strong></td><td>Particella in campo magnetico B</td></tr>
+      <tr><td><strong>Collisioni e Gas</strong></td><td>Collisioni elastiche 2D · Gas ideale (scatola di particelle)</td></tr>
+      <tr><td><strong>Gravitazione e Onde</strong></td><td>Problema dei tre corpi · Corda vibrante</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="sim-save">4.7 Salvataggio e Caricamento Scene</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Azione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><strong>💾 Salva scena</strong></td><td>Salva la scena corrente nel <code>localStorage</code> con un nome utente. Tutti i corpi, vincoli, forze e parametri vengono memorizzati.</td></tr>
+      <tr><td><strong>⬇ Download JSON</strong></td><td>Esporta la scena come file <code>.json</code> con la descrizione completa di tutti gli oggetti.</td></tr>
+      <tr><td><strong>⬆ Carica JSON</strong></td><td>Importa una scena da file <code>.json</code> precedentemente scaricato.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="sim-ctrl">4.8 Controlli di Simulazione</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Controllo</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><code>▶ AVVIA</code> / <code>⏸ PAUSA</code></td><td>Avvia o sospende la simulazione fisica in tempo reale.</td></tr>
+      <tr><td><code>⏭</code> Step</td><td>Avanza esattamente di un passo <code>dt</code>. Permette l'analisi frame-by-frame dell'evoluzione del sistema.</td></tr>
+      <tr><td><code>⏮</code> Reset</td><td>Riporta tutti i corpi allo stato iniziale e azzera il tempo <code>t = 0</code>.</td></tr>
+      <tr><td><code>⊘ Clear</code></td><td>Rimuove tutti i corpi e vincoli dalla scena.</td></tr>
+      <tr><td>Display <code>t = 0.000 s</code></td><td>Tempo fisico simulato corrente in secondi, aggiornato a ogni frame.</td></tr>
+      <tr><td>Campo <code>vel×</code></td><td>Moltiplicatore velocità: <code>0.1×</code> (rallentato 10×) → <code>20×</code> (accelerato 20×), default <code>1×</code>.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════ 5 GEO -->
+<section id="geo">
+  <h2><span class="sec-num">05</span> Modulo GEO — Geometria Euclidea Interattiva</h2>
+  <p>
+    Il modulo <strong>△ GEO</strong> è un costruttore di geometria euclidea dinamica.
+    Il principio fondamentale è il <strong>ridisegno dinamico</strong>: spostando un punto libero,
+    tutte le figure dipendenti si aggiornano istantaneamente. Permette di esplorare proprietà
+    geometriche e verificare congetture in modo visivo e interattivo.
+  </p>
+
+  <h3 id="geo-tools">5.1 Strumenti di Costruzione</h3>
+  <p>Tutti gli strumenti si trovano nella <strong>palette Strumenti</strong> del pannello laterale.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Strumento</th><th>Icona</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Seleziona</strong></td><td><code>↖</code></td><td>Selezione e modifica. Clicca per selezionare, trascina i punti liberi per muovere la costruzione dinamicamente. Mostra le proprietà dell'oggetto selezionato.</td></tr>
+      <tr><td><strong>Punto</strong></td><td><code>●</code></td><td>Crea un punto libero nel canvas. Coordinate editabili nel pannello Proprietà e visibili nella Vista Algebrica.</td></tr>
+      <tr><td><strong>Retta</strong></td><td><code>⟵</code></td><td>Retta passante per due punti. Si estende indefinitamente in entrambe le direzioni.</td></tr>
+      <tr><td><strong>Segmento</strong></td><td><code>━</code></td><td>Segmento tra due punti. Lunghezza calcolata e mostrata nella Vista Algebrica.</td></tr>
+      <tr><td><strong>Cerchio (C,r)</strong></td><td><code>○</code></td><td>Cerchio definito da <strong>centro</strong> (1° click) e <strong>punto sul perimetro</strong> (2° click). Raggio modificabile trascinando il punto perimetrale.</td></tr>
+      <tr><td><strong>Cerchio (3p)</strong></td><td><code>◎</code></td><td>Cerchio circoscritto a tre punti: univocamente determinato dalla terna di punti selezionati.</td></tr>
+      <tr><td><strong>Perpendicolare</strong></td><td><code>⊥</code></td><td>Retta perpendicolare a un oggetto lineare dato, passante per un punto specificato.</td></tr>
+      <tr><td><strong>Parallela</strong></td><td><code>∥</code></td><td>Retta parallela a un oggetto lineare dato, passante per un punto specificato.</td></tr>
+      <tr><td><strong>Punto medio</strong></td><td><code>⊕</code></td><td>Punto medio di un segmento o tra due punti. Agganciato dinamicamente ai genitori.</td></tr>
+      <tr><td><strong>Intersezione</strong></td><td><code>✕</code></td><td>Intersezione tra due oggetti (rette, segmenti, cerchi — qualsiasi combinazione).</td></tr>
+      <tr><td><strong>Poligono</strong></td><td><code>⬡</code></td><td>Poligono chiuso da vertici in sequenza. Calcola area e perimetro nella Vista Algebrica.</td></tr>
+      <tr><td><strong>Slider</strong></td><td><code>⇔</code></td><td>Parametro numerico variabile interattivo. Usabile come dipendenza in costruzioni per animare figure o esplorare famiglie di curve.</td></tr>
+      <tr><td><strong>Bisettrice</strong></td><td><code>∠</code></td><td>Bisettrice dell'angolo definito da tre punti (vertice al centro) o di due rette secanti.</td></tr>
+      <tr><td><strong>Punto su oggetto</strong></td><td><code>⊂</code></td><td>Punto vincolato a scorrere su un oggetto esistente (retta, segmento, cerchio): trascinabile ma sempre sull'oggetto padre.</td></tr>
+      <tr><td><strong>Angolo</strong></td><td><code>∠</code></td><td>Misura e visualizza l'angolo tra tre punti (il secondo come vertice), in gradi o radianti. Aggiornamento dinamico.</td></tr>
+      <tr><td><strong>Distanza</strong></td><td><code>↔</code></td><td>Misura la distanza tra due punti o la lunghezza di un oggetto. Aggiornata al trascinamento.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout callout-green">
+    <strong>Pulsante + AGGIUNGI:</strong> permette di aggiungere oggetti mediante input diretto di
+    espressioni o coordinate numeriche, per una costruzione analitica precisa senza click sul canvas.<br><br>
+    <strong>Pannello Suggerimenti ▶:</strong> mostra istruzioni contestuali passo-passo per lo strumento
+    attivo (es. "Clicca per definire il centro del cerchio").
+  </div>
+
+  <h3 id="geo-alg">5.2 Vista Algebrica</h3>
+  <p>
+    Il pannello <strong>Vista Algebrica</strong> (<code>geo-alg-list</code>) mostra la rappresentazione
+    algebrica di tutti gli oggetti, aggiornata in real-time al trascinamento:
+  </p>
+  <ul>
+    <li><strong>Punti</strong> — coordinate <code>(x, y)</code></li>
+    <li><strong>Segmenti</strong> — lunghezza</li>
+    <li><strong>Rette</strong> — equazione</li>
+    <li><strong>Cerchi</strong> — centro e raggio</li>
+    <li><strong>Angoli</strong> — valore in gradi o radianti</li>
+    <li><strong>Distanze</strong> — valore numerico</li>
+    <li><strong>Slider</strong> — nome del parametro e valore corrente</li>
+  </ul>
+  <p>
+    Supporta anche l'<strong>input diretto di espressioni</strong>: è possibile digitare coordinate o
+    definizioni analitiche per creare oggetti senza usare gli strumenti grafici.
+  </p>
+  <p>Quando non ci sono oggetti: <em>"Nessun oggetto. Usa gli strumenti o digita un'espressione."</em></p>
+
+  <h3 id="geo-nota">5.3 Nota Costruzione</h3>
+  <p>
+    Il campo <strong>✎ Nota costruzione</strong> è una <code>textarea</code> in cui inserire un commento
+    o una spiegazione testuale. Il testo viene <strong>visualizzato direttamente sul canvas</strong>
+    come annotazione ed è incluso nell'esportazione HTML standalone. Utile per materiali didattici,
+    presentazioni e condivisione della costruzione con annotazioni esplicative.
+  </p>
+
+  <h3 id="geo-grid">5.4 Griglia e Scie</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Funzione</th><th>Icona</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Griglia</strong></td><td><code>⊞</code></td>
+        <td>Attiva/disattiva una griglia di riferimento sul canvas. Facilita la lettura delle coordinate e la costruzione di figure con misure precise.</td>
+      </tr>
+      <tr>
+        <td><strong>Scie</strong></td><td><code>⌁</code></td>
+        <td>Attiva/disattiva la modalità <strong>traccia</strong>: quando attiva, i punti dipendenti lasciano una scia grafica durante il trascinamento di un punto libero o lo spostamento di uno slider. Permette di visualizzare il <strong>luogo geometrico</strong> descritto da un punto al variare della costruzione — strumento potente per l'esplorazione geometrica.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout callout-purple">
+    <strong>Esempio d'uso delle Scie:</strong> costruisci il punto medio di un segmento i cui estremi
+    si muovono su due cerchi. Attiva Scie e trascina uno degli estremi: vedrai apparire il luogo
+    geometrico del punto medio, che risulterà essere a sua volta un cerchio.
+  </div>
+
+  <h3 id="geo-props">5.5 Pannello Proprietà</h3>
+  <p>Il pannello <strong>Proprietà</strong> appare selezionando un oggetto. Consente di modificare:</p>
+  <ul>
+    <li><strong>Nome/etichetta</strong> dell'oggetto (rinominabile).</li>
+    <li><strong>Colore e stile</strong> di visualizzazione: spessore linea, tratteggio, riempimento.</li>
+    <li><strong>Valori numerici</strong>: coordinate (punti), raggio (cerchi), valore e intervallo (slider).</li>
+    <li><strong>Visibilità</strong>: mostrare/nascondere l'etichetta o l'oggetto stesso.</li>
+    <li><strong>Informazioni sui vincoli</strong>: da quali oggetti dipende e quali oggetti dipendono da esso.</li>
+  </ul>
+
+  <h3 id="geo-esempi">5.6 Esempi Precaricati</h3>
+  <p>Costruzioni classiche di geometria euclidea, organizzate per argomento.</p>
+
+  <div class="table-wrap"><table>
+    <thead><tr><th>Categoria</th><th>Costruzioni disponibili</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Triangoli e Poligoni</strong></td>
+        <td>Baricentro del triangolo · Cerchio circoscritto · Cerchio inscritto · Teorema di Pitagora</td>
+      </tr>
+      <tr>
+        <td><strong>Rette e Angoli</strong></td>
+        <td>Parallele e trasversale (angoli alterni/corrispondenti) · Bisettrice dell'angolo · Teorema di Talete</td>
+      </tr>
+      <tr>
+        <td><strong>Cerchi</strong></td>
+        <td>Tangente da punto esterno · Asse radicale di due cerchi · Cerchio dei nove punti</td>
+      </tr>
+      <tr>
+        <td><strong>Costruzioni Classiche</strong></td>
+        <td>Retta di Eulero (ortocentro, baricentro, circocentro allineati) · Sezione aurea (φ = (1+√5)/2) · Slider e dipendenze</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="geo-save">5.7 Salvataggio e Caricamento</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Azione</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr><td><strong>💾 Salva</strong></td><td>Salva la costruzione nel <code>localStorage</code> con un nome utente.</td></tr>
+      <tr><td><strong>⬇ Download</strong></td><td>Esporta la costruzione come file JSON scaricabile sul computer.</td></tr>
+      <tr><td><strong>⬆ Carica</strong></td><td>Importa una costruzione da file JSON precedentemente scaricato.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 id="geo-nav">5.8 Navigazione del Canvas</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Azione</th><th>Gesto</th><th>Effetto</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Pan</strong></td><td>Trascinamento su area vuota</td><td>Sposta la vista del canvas</td></tr>
+      <tr><td><strong>Zoom</strong></td><td>Rotella del mouse</td><td>Ingrandisce o rimpicciolisce intorno al cursore</td></tr>
+      <tr><td><strong>Reset vista</strong></td><td>Pulsante <code>⌖ RESET</code></td><td>Riporta a origine e zoom di default</td></tr>
+    </tbody>
+  </table></div>
+  <p>La barra di stato mostra in tempo reale le <strong>coordinate del cursore</strong> nelle unità di sistema, utili per costruzioni che richiedono precisione numerica.</p>
+</section>
+
+<!-- ═══════════════════════════════════ 6 ESPORTAZIONE -->
+<section id="export">
+  <h2><span class="sec-num">06</span> Esportazione</h2>
+  <p>SciCanvas offre molteplici formati di esportazione per ogni modulo.</p>
+
+  <h3>Modulo CODICE</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Formato</th><th>Pulsante</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>PNG</strong></td><td><code>↓ PNG</code></td>
+        <td>Esporta il canvas come immagine PNG ad alta fedeltà. La risoluzione corrisponde alla dimensione effettiva del canvas.</td>
+      </tr>
+      <tr>
+        <td><strong>HTML standalone</strong></td><td><code>⬡ HTML</code></td>
+        <td>File HTML autonomo che include il codice sorgente ed esegue automaticamente il grafico al caricamento, <strong>senza</strong> l'interfaccia dell'editor. Ideale per condivisione, incorporamento in pagine web e presentazioni.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3>Modulo SIM</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Formato</th><th>Pulsante</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>HTML standalone interattivo</strong></td><td><code>⬡ HTML</code></td>
+        <td>L'intera simulazione (corpi, vincoli, forze, parametri) esportata come file HTML autonomo <strong>completamente interattivo</strong>. Il destinatario può avviare, mettere in pausa, resettare e interagire nel proprio browser senza SciCanvas.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3>Modulo GEO</h3>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Formato</th><th>Pulsante</th><th>Descrizione</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>PNG</strong></td><td><code>↓ PNG</code></td>
+        <td>Esporta la costruzione come immagine PNG statica.</td>
+      </tr>
+      <tr>
+        <td><strong>HTML standalone interattivo</strong></td><td><code>⬡ HTML</code></td>
+        <td>Costruzione geometrica esportata come HTML autonomo <strong>dinamico</strong>: i punti liberi rimangono trascinabili e le figure dipendenti si aggiornano in real-time, preservando l'interattività della geometria dinamica originale.</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════ 7 SCORCIATOIE -->
+<section id="shortcuts">
+  <h2><span class="sec-num">07</span> Scorciatoie da Tastiera</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Scorciatoia</th><th>Contesto</th><th>Azione</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>↵</kbd></td><td>Modulo CODICE</td><td>Esegue il codice nell'editor</td></tr>
+      <tr><td><kbd>Tab</kbd></td><td>Editor (area di testo)</td><td>Inserisce l'indentazione</td></tr>
+      <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>REPL (campo di input)</td><td>Naviga la cronologia dei comandi</td></tr>
+      <tr><td><kbd>↵</kbd></td><td>REPL (campo di input)</td><td>Invia l'espressione per la valutazione</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════ 8 ABOUT -->
+<section id="about">
+  <h2><span class="sec-num">08</span> Licenza e Autore</h2>
+  <pre><span class="cm">Copyright © 2026 Leonardo Boselli
+
+Prompt Designer : Leonardo Boselli
+Programmer      : Claude Sonnet 4.6 &lt;https://claude.ai/&gt;
+
+Licenza: GNU General Public License v3.0
+         https://www.gnu.org/licenses/gpl-3.0.html</span></pre>
+
+  <p>
+    SciCanvas è <strong>software libero</strong>: è possibile ridistribuirlo e/o modificarlo
+    secondo i termini della <strong>GNU General Public License v3.0</strong> pubblicata dalla Free Software Foundation.
+  </p>
+  <p>
+    Il programma viene distribuito nella speranza che sia utile, ma <strong>senza alcuna garanzia</strong>;
+    senza nemmeno la garanzia implicita di commerciabilità o idoneità a uno scopo particolare.
+  </p>
+  <div class="callout callout-blue">
+    Repository GitHub: <a href="https://github.com/YouDevIt/SciCanvas" target="_blank">https://github.com/YouDevIt/SciCanvas</a>
+  </div>
+</section>
+
+</div><!-- /content -->
+
+<footer>
+  <div>SciCanvas — Live Scientific Graphics Engine</div>
+  <div>Copyright © 2026 Leonardo Boselli — Licenza <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank">GNU GPL v3.0</a></div>
+  <div>Repository: <a href="https://github.com/YouDevIt/SciCanvas" target="_blank">https://github.com/YouDevIt/SciCanvas</a></div>
+</footer>
+</div><!-- /main -->
+
+<script>
+  const sections = document.querySelectorAll('section[id], h3[id]');
+  const links = document.querySelectorAll('#sidebar nav a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#sidebar nav a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

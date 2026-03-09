@@ -1,1080 +1,871 @@
-# SciCanvas — Complete Manual
+# SciCanvas — Manuale Completo
 
-> Version 2025 · Single-file scientific graphics engine for the browser  
-> License: GNU GPL v3
-
----
-
-## Table of Contents
-
-1. [Coordinate System](#1-coordinate-system)
-2. [Drawing State](#2-drawing-state)
-3. [Primitive Shapes](#3-primitive-shapes)
-4. [Text & Labels](#4-text--labels)
-5. [Plotting & Charts](#5-plotting--charts)
-6. [Physics Visualisation](#6-physics-visualisation)
-7. [Animation & Input](#7-animation--input)
-8. [User Interface (lil-gui)](#8-user-interface-lil-gui)
-9. [LaTeX on Canvas](#9-latex-on-canvas)
-10. [Physica — Units & Constants](#10-physica--units--constants)
-11. [Formulario — Physics Formulas](#11-formulario--physics-formulas)
-12. [Algebrite — Computer Algebra](#12-algebrite--computer-algebra)
-13. [Math Utilities](#13-math-utilities)
-14. [REPL](#14-repl)
-15. [Standalone HTML Export](#15-standalone-html-export)
-16. [Global Constants](#16-global-constants)
-17. [Coordinate Transforms](#17-coordinate-transforms)
+> **LIVE SCIENTIFIC GRAPHICS ENGINE**
+> Copyright © 2026 Leonardo Boselli — Licenza GNU GPL v3.0
 
 ---
 
-## 1. Coordinate System
+## Indice
 
-By default the canvas uses **pixel coordinates** (origin top-left). Call `setCoords` to switch to a named mathematical coordinate system.
-
-### `setCoords(xmin, xmax, ymin, ymax)`
-
-Activates a Cartesian coordinate system. All subsequent drawing calls use mathematical coordinates.
-
-```js
-setCoords(-5, 5, -4, 4);    // x ∈ [-5, 5], y ∈ [-4, 4]
-setCoords(-10, 10, -7, 7);  // wider view
-```
-
-The aspect ratio of the viewport is respected automatically — the shorter axis is expanded to keep circles round.
-
-### `resetCoords()`
-
-Restores pixel coordinates and resets pan/zoom to the identity transform.
-
-### `axes(options?)`
-
-Draws labelled x/y axes with tick marks and optional grid.
-
-```js
-axes();   // default style
-
-axes({
-  color:      '#2a3d55',   // axis line colour
-  gridColor:  '#1e2535',   // grid line colour (null = no grid)
-  xLabel:     'x',
-  yLabel:     'y',
-  labelColor: '#3a5570',
-  bold:       true,
-  tickSize:   0.1,         // tick length in coordinate units
-  fontSize:   11,
-});
-```
-
-### `grid(stepX, stepY, color, options?)`
-
-Draws a grid independently of axes.
-
-```js
-grid(1, 1, '#0d1525');
-grid(0.5, 0.5, '#1a2535', { width: 0.5, dash: [2, 4] });
-```
+1. [Presentazione](#1-presentazione)
+2. [Interfaccia Generale](#2-interfaccia-generale)
+3. [Modulo CODICE](#3-modulo-codice)
+   - 3.1 [Editor](#31-editor)
+   - 3.2 [REPL Interattivo](#32-repl-interattivo)
+   - 3.3 [Libreria Esempi](#33-libreria-esempi)
+   - 3.4 [Riferimento API](#34-riferimento-api)
+   - 3.5 [Gestione Script](#35-gestione-script)
+4. [Modulo SIM — Simulatore Fisico 2D](#4-modulo-sim--simulatore-fisico-2d)
+   - 4.1 [Corpi Fisici](#41-corpi-fisici)
+   - 4.2 [Vincoli e Superfici](#42-vincoli-e-superfici)
+   - 4.3 [Forze Globali](#43-forze-globali)
+   - 4.4 [Integratore Numerico](#44-integratore-numerico)
+   - 4.5 [CustomDraw](#45-customdraw)
+   - 4.6 [Esempi Precaricati](#46-esempi-precaricati)
+   - 4.7 [Salvataggio e Caricamento Scene](#47-salvataggio-e-caricamento-scene)
+   - 4.8 [Controlli di Simulazione](#48-controlli-di-simulazione)
+5. [Modulo GEO — Geometria Euclidea Interattiva](#5-modulo-geo--geometria-euclidea-interattiva)
+   - 5.1 [Strumenti di Costruzione](#51-strumenti-di-costruzione)
+   - 5.2 [Vista Algebrica](#52-vista-algebrica)
+   - 5.3 [Nota Costruzione](#53-nota-costruzione)
+   - 5.4 [Griglia e Scie](#54-griglia-e-scie)
+   - 5.5 [Pannello Proprietà](#55-pannello-proprietà)
+   - 5.6 [Esempi Precaricati](#56-esempi-precaricati)
+   - 5.7 [Salvataggio e Caricamento](#57-salvataggio-e-caricamento)
+   - 5.8 [Navigazione del Canvas](#58-navigazione-del-canvas)
+6. [Esportazione](#6-esportazione)
+7. [Scorciatoie da Tastiera](#7-scorciatoie-da-tastiera)
+8. [Informazioni su Licenza e Autore](#8-informazioni-su-licenza-e-autore)
 
 ---
 
-## 2. Drawing State
+## 1. Presentazione
 
-SciCanvas maintains a global drawing state. Functions modify that state for all subsequent draw calls until changed again.
+**SciCanvas** è un'applicazione web monolitica (un singolo file `.html` autocontenuto) progettata per la **creazione e visualizzazione interattiva di grafica scientifica** direttamente nel browser, senza installazioni né dipendenze esterne da configurare.
 
-### Fill & Stroke
+L'applicazione integra tre ambienti indipendenti ma coerenti:
 
-```js
-fill('#00d4ff');          // set fill colour (any CSS colour string)
-noFill();                 // disable fill
-stroke('#ff4466');        // set stroke colour
-noStroke();               // disable stroke
-lineWidth(2);             // stroke width (coordinate units or pixels depending on context)
-alpha(0.7);               // global opacity 0–1 (alias: opacity(v))
-lineDash([6, 4]);         // set dash pattern
-noDash();                 // clear dash pattern
-```
+| Modulo | Icona | Descrizione |
+|--------|-------|-------------|
+| **CODICE** | `⌨` | Editor JavaScript con API grafica Canvas, REPL interattivo, CAS simbolico, libreria esempi, documentazione API integrata e gestione script. |
+| **SIM** | `⛛` | Simulatore fisico 2D con corpi rigidi, vincoli cinematici, forze globali configurabili (anche dinamiche), integratore RK4, CustomDraw e libreria di scene precaricate. |
+| **GEO** | `△` | Costruttore interattivo di geometria euclidea dinamica con strumenti classici, vista algebrica, scie, slider parametrici e libreria di costruzioni. |
 
-### Push / Pop
+**Librerie esterne integrate (caricate da CDN al primo avvio):**
 
-```js
-push();   // save current drawing state (ctx.save)
-pop();    // restore previous state (ctx.restore)
-```
-
-### Background
-
-```js
-bg('#020810');   // fill the entire canvas with a solid colour
-clear();         // clear to transparent
-```
+| Libreria | Versione | Utilizzo |
+|----------|----------|----------|
+| MathJax | 3 (tex-svg) | Rendering di formule LaTeX in formato SVG direttamente sul canvas |
+| Algebrite | 1.4.0 | Calcolo simbolico CAS nel REPL (derivate, integrali, semplificazione, ecc.) |
+| lil-gui | 0.19 | Pannelli UI parametrici per il codice utente |
 
 ---
 
-## 3. Primitive Shapes
+## 2. Interfaccia Generale
 
-All coordinates are in the current coordinate system.
+### Barra di intestazione (Header)
 
-### `rect(x, y, width, height, radius?)`
+L'intestazione è sempre visibile e si adatta dinamicamente al modulo attivo, mostrando i pulsanti pertinenti a quello in uso.
 
-```js
-rect(-2, -1, 4, 2);           // plain rectangle
-rect(-1, -1, 2, 2, 0.15);     // rounded corners (radius in coordinate units)
-```
+**Elementi fissi (sempre visibili):**
+- **Logo `Sci·Canvas`** e tagline `LIVE SCIENTIFIC GRAPHICS ENGINE`: identificano l'applicazione.
+- **Pulsante `ⓘ`**: apre la finestra modale **About** con dati su autore, ruoli e licenza.
+- **Controllo scala interfaccia (`−` / `+`)**: riduce o aumenta la scala dell'intera UI in passi discreti. Il valore corrente (es. `100%`) è mostrato tra i due pulsanti. L'impostazione viene salvata nel `localStorage` del browser e ripristinata automaticamente all'avvio.
 
-### `circle(x, y, radius)`
+**Pulsanti del modulo CODICE:**
 
-```js
-circle(0, 0, 1.5);
-```
+| Pulsante | Funzione |
+|----------|----------|
+| `▶ ESEGUI` | Esegue il codice nell'editor (scorciatoia: `Ctrl+↵`) |
+| `■ STOP` | Ferma il loop di animazione corrente |
+| `⊘ CLEAR` | Cancella il contenuto del canvas |
+| `↓ PNG` | Esporta il canvas come immagine PNG |
+| `⬡ HTML` | Esporta come HTML standalone (senza editor) |
 
-### `ellipse(x, y, rx, ry)`
+**Pulsanti del modulo SIM:**
 
-```js
-ellipse(0, 0, 2, 1);
-```
+| Pulsante / Controllo | Funzione |
+|----------------------|----------|
+| `▶ AVVIA` / `⏸ PAUSA` | Avvia o sospende la simulazione |
+| `⏭` | Avanza di un singolo passo temporale `dt` |
+| `⏮` | Ripristina lo stato iniziale e azzera il tempo |
+| `⊘ Clear` | Rimuove tutti i corpi e vincoli dalla scena |
+| Display `t = 0.000 s` | Tempo fisico simulato corrente, aggiornato in real-time |
+| Campo `vel×` | Moltiplicatore velocità di simulazione (0.1× – 20×) |
+| `⬡ HTML` | Esporta la simulazione come HTML standalone interattivo |
 
-### `line(x1, y1, x2, y2)`
+**Pulsanti del modulo GEO:**
 
-```js
-line(-3, 0, 3, 0);
-```
+| Pulsante | Funzione |
+|----------|----------|
+| `↖ Seleziona` | Attiva la modalità selezione e trascinamento punti |
+| `↩ Undo` | Annulla l'ultima operazione di costruzione |
+| `⊘ Clear` | Cancella tutta la costruzione |
+| `↓ PNG` | Esporta la costruzione come immagine PNG |
+| `⬡ HTML` | Esporta come HTML standalone interattivo e dinamico |
 
-### `arc(x, y, r, angle1, angle2, counterClockwise?)`
+### Layout principale
 
-Angles in radians.
+L'interfaccia è divisa in due pannelli affiancati:
+- **Pannello sinistro**: editor di codice, REPL, palette strumenti, controlli del modulo attivo.
+- **Pannello destro**: canvas HTML5 per rendering grafico, fisico o geometrico.
 
-```js
-arc(0, 0, 1, 0, PI / 2);        // quarter circle
-arc(0, 0, 1, 0, TAU);           // full circle (same as circle())
-```
+### Barra di stato del canvas
 
-### `bezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2)`
-
-```js
-bezier(-2, 0, -1, 2, 1, 2, 2, 0);
-```
-
-### `polygon(points)`
-
-`points` is an array of `[x, y]` pairs. The path is automatically closed.
-
-```js
-polygon([[-1, 0], [0, 2], [1, 0]]);   // triangle
-```
-
-### `point(x, y, radius?, color?)`
-
-Draws a filled dot. Radius is in pixels.
-
-```js
-point(1.5, 2.3, 4, '#ff4466');
-```
-
-### `arrow(x1, y1, x2, y2, headSize?, color?)`
-
-```js
-arrow(-2, 0, 2, 0);
-arrow(0, 0, 1.5, 1.5, 12, '#00d4ff');
-```
+Nella parte inferiore del canvas sono presenti indicatori contestuali aggiornati in tempo reale:
+- **Coordinate del cursore** (es. `x: 2.345, y: -1.200`): posizione del mouse nelle unità di sistema del canvas.
+- **FPS e frame counter**: visibili durante le animazioni, utili per valutare le prestazioni.
+- **Pulsante `⌖ RESET`**: riporta la vista al punto di origine e allo zoom di default.
+- **Indicatori di stato**: `◉ PRONTO`, `○ INATTIVO` con messaggi contestuali per il modulo attivo.
+- **Suggerimento navigazione**: `🖱 TRASCINA: pan · ROTELLA: zoom · Ctrl+↵: esegui`.
 
 ---
 
-## 4. Text & Labels
+## 3. Modulo CODICE
 
-### `font(size, family?, style?, weight?)`
+Il modulo CODICE è il cuore creativo di SciCanvas: permette di scrivere ed eseguire codice JavaScript che disegna sul canvas tramite un'API grafica di alto livello. È organizzato in cinque sotto-schede.
 
-Sets the font for subsequent `text()` calls.
+### 3.1 Editor
 
-```js
-font(16, 'Syne, sans-serif', 'normal', '700');
-font(12, 'JetBrains Mono, monospace', 'italic');
+La sotto-scheda **📝 editor** è l'ambiente principale di scrittura del codice.
+
+**Caratteristiche:**
+
+- **Syntax highlighting in tempo reale**: parole chiave JavaScript, numeri, stringhe, commenti e operatori vengono colorati tramite un layer sovrapposto (`syntaxHl`) all'area di testo nativa. Il coloring avviene a ogni keystroke senza latenze percettibili.
+- **Numerazione delle righe**: la colonna `lnums` a sinistra mostra i numeri di riga; lo scroll è sincronizzato con il testo in ogni momento.
+- **Indentazione con Tab**: il tasto `Tab` inserisce spazi di indentazione standard senza perdere il focus sull'editor.
+- **Drag & drop file**: è possibile trascinare un file `.js` o `.txt` direttamente sull'editor per caricarne il contenuto. Durante il trascinamento appare un overlay animato con il messaggio `⬇ Rilascia il file .js / .txt`. Al rilascio, il contenuto del file sostituisce il codice corrente.
+- **Esecuzione**: il codice viene eseguito premendo `▶ ESEGUI` o con la scorciatoia `Ctrl+↵`.
+- **Stop animazione**: `■ STOP` interrompe il loop `requestAnimationFrame` in corso impostando la variabile interna `animRun = false`.
+- **Clear canvas**: `⊘ CLEAR` cancella il contenuto del canvas senza fermare eventuali animazioni in corso.
+- **Ridisegno automatico al resize**: se non è attivo un loop di animazione, al ridimensionamento della finestra del browser viene chiamata automaticamente la funzione `redrawStatic()`, ridisegnando il grafico statico con le nuove dimensioni del canvas.
+
+### 3.2 REPL Interattivo
+
+La sotto-scheda **⚡ repl** offre un *Read-Eval-Print Loop* per eseguire espressioni singole in modo immediato, senza dover riscrivere o rieseguire l'intero script dell'editor.
+
+**Due modalità operative:**
+
+| Modalità | Pulsante | Descrizione |
+|----------|----------|-------------|
+| **JS** | `JS` | Valuta espressioni JavaScript nell'ambiente del canvas. Permette di testare funzioni API, fare calcoli rapidi, ispezionare variabili o invocare comandi grafici istantanei. |
+| **CAS** | `CAS` | Valuta espressioni di **algebra simbolica** tramite la libreria Algebrite: derivate, integrali, semplificazione algebrica, fattorizzazione, espansione, risoluzione simbolica di equazioni, ecc. |
+
+**Namespace persistente `_`:**
+
+Le variabili possono essere assegnate tramite `_.nomeVariabile = valore` e rimangono disponibili tra una valutazione REPL e l'altra nella stessa sessione. La barra `replNsBar` in fondo all'area output mostra in tempo reale il contenuto corrente dell'oggetto `_`.
+
+**Funzionalità UI del REPL:**
+- **Area di output** (`replOut`): mostra i risultati con formattazione visiva distinta per valori numerici, errori, output CAS e messaggi.
+- **Prompt `›`**: precede il campo di input per evidenziare la riga di inserimento.
+- **Cronologia comandi**: `↑` / `↓` navigano la cronologia dei comandi della sessione corrente.
+- **`⊘ Clear`**: pulisce l'area di output senza azzerare il namespace `_`.
+- **`? Aiuto`**: mostra una guida sintetica ai comandi disponibili nel REPL.
+- **Invio**: tasto `↵` o pulsante `↵` sulla destra del campo invia l'espressione per la valutazione.
+
+**Esempi in modalità CAS:**
+
+```
+› derivative(sin(x), x)
+  cos(x)
+
+› simplify((x^2 - 1) / (x - 1))
+  x + 1
+
+› integral(x^2, x)
+  x^3 / 3
+
+› factor(x^3 - x^2 - x + 1)
+  (x - 1)^2 * (x + 1)
+
+› expand((a + b)^3)
+  a^3 + 3*a^2*b + 3*a*b^2 + b^3
 ```
 
-### `textAlign(align)`
-
-`'left'` | `'center'` | `'right'`
-
-### `textBase(baseline)`
-
-`'top'` | `'middle'` | `'bottom'` | `'alphabetic'`
-
-### `text(string, x, y, options?)`
+**Esempi in modalità JS (con API grafica):**
 
 ```js
-fill('#00d4ff');
-font(14, 'monospace');
-textAlign('center');
-textBase('middle');
-text('Hello SciCanvas', 0, 0);
-
-// With inline options:
-text('note', 1, 2, { size: 10, color: '#888', weight: 'bold' });
+› drawAxis()
+› plotFunction(x => Math.sin(x))
+› _.f = x => x*x - 2*x + 1
+› plotFunction(_.f, -2, 4)
 ```
 
-### `label(string, x, y, size?, color?, family?)`
+### 3.3 Libreria Esempi
 
-Convenience shorthand — always centered and middle-aligned.
+La sotto-scheda **📚 esempi** contiene una raccolta di script dimostrativi pre-caricati, organizzati per categoria. Cliccando su un esempio, il suo codice viene caricato nell'editor ed è immediatamente eseguibile o modificabile.
 
-```js
-label('Origin', 0, 0, 12, '#aaa');
-```
+Gli esempi coprono tipicamente:
+- Grafici di funzioni matematiche (trigonometriche, esponenziali, logaritmiche, polinomiali).
+- Curve parametriche, spirali di Archimede, curve di Lissajous, ipotroclodi.
+- Animazioni in loop con `requestAnimationFrame`.
+- Uso di MathJax per inserire formule LaTeX come etichette tipograficamente corrette sul canvas.
+- Visualizzazioni di concetti fisici: campi vettoriali, traiettorie, distribuzione di forze.
+- Grafici di dati, istogrammi, scatter plot, bar chart.
+- Utilizzo di lil-gui per creare pannelli di controllo parametrici interattivi.
 
-### `mathText(string, x, y, size?, color?)`
+### 3.4 Riferimento API
 
-Renders text in italic serif (Georgia) — suitable for variable names and simple inline maths.
+La sotto-scheda **📖 api** contiene la documentazione completa dell'API JavaScript disponibile nell'editor. Tutte le funzioni sono disponibili nell'ambiente di esecuzione senza importazioni. Cliccando su una voce dell'API, la firma viene inserita automaticamente nel punto di inserimento corrente dell'editor (o nel campo del REPL se era l'ultima scheda attiva).
 
-```js
-mathText('f(x) = sin(x)', -4, 3, 14, '#00d4ff');
-```
+L'API è organizzata in **13 categorie**:
 
 ---
 
-## 5. Plotting & Charts
+#### 🎨 Stato Grafico
 
-### `plot(fn, options?)`
-
-Plots a function `y = f(x)`.
-
-```js
-plot(x => Math.sin(x), { color: '#00d4ff', width: 2 });
-plot(x => x * x,       { color: '#ff8844', width: 1.5, xmin: -3, xmax: 3 });
-plot(x => Math.tan(x), { color: '#aa66ff', steps: 1200, dash: [4, 4] });
-```
-
-| Option | Default | Description |
-|---|---|---|
-| `color` | `'#00d4ff'` | Line colour |
-| `width` | `2` | Line width |
-| `xmin` | coordinate min | Left bound |
-| `xmax` | coordinate max | Right bound |
-| `steps` | `800` | Number of sample points |
-| `dash` | `null` | Dash pattern array |
-
-### `plotFill(fn, baseline, options?)`
-
-Like `plot` but fills the area between the curve and `baseline`.
-
-```js
-plotFill(x => Math.sin(x), 0, {
-  color:       'rgba(0,212,255,0.2)',
-  strokeColor: '#00d4ff',
-  width:       2,
-});
-```
-
-### `parametric(xFn, yFn, options?)`
-
-Plots a parametric curve `(x(t), y(t))`.
-
-```js
-parametric(t => 3 * Math.cos(t), t => 2 * Math.sin(t), {
-  tmin: 0, tmax: TAU,
-  color: '#aa66ff', width: 2, steps: 500,
-});
-
-// Lissajous
-parametric(t => Math.sin(3*t), t => Math.sin(2*t + PI/4), {
-  tmin: 0, tmax: TAU * 3,
-  color: '#00ff88', steps: 1000,
-});
-```
-
-### `scatter(points, options?)`
-
-```js
-const data = [[1, 2.1], [2, 3.8], [3, 2.9], [4, 5.1]];
-scatter(data, { color: '#ff4466', r: 5, stroke: '#fff', labels: ['A','B','C','D'] });
-```
-
-### `gaussian(mu, sigma, options?)`
-
-Plots a Gaussian (normal) distribution.
-
-```js
-gaussian(0, 1,   { color: '#00d4ff', width: 2, fill: true });
-gaussian(2, 0.5, { color: '#ff8844', A: 1.5 });
-```
-
-### `wave(options?)`
-
-Plots a sine or cosine wave.
-
-```js
-wave({ A: 1.5, lambda: 2, phi: PI/4, color: '#00ff88', fill: true });
-wave({ type: 'cos', A: 0.8, lambda: 1 });
-```
-
-### `barChart(data, options?)`
-
-```js
-barChart([42, 67, 31, 85, 54], {
-  labels: ['A', 'B', 'C', 'D', 'E'],
-  colors: ['#00d4ff', '#ff8844', '#00ff88', '#aa66ff', '#ff4466'],
-  x: -4, y: -3, w: 8,
-});
-```
-
-### `contour(fn, options?)`
-
-Renders a 2D scalar field as a colour-mapped image.
-
-```js
-contour((x, y) => Math.sin(x) * Math.cos(y), {
-  colorMap: { low: '#000088', mid: '#008800', high: '#ff4400' },
-  opacity: 0.9, nx: 120, ny: 90,
-});
-```
+| Funzione | Descrizione |
+|----------|-------------|
+| `bg(color)` | Imposta il colore di sfondo del canvas |
+| `clear()` | Pulisce il canvas (trasparente) |
+| `fill(color)` / `noFill()` | Imposta il colore di riempimento / disabilita riempimento |
+| `stroke(color)` / `noStroke()` | Imposta il colore del contorno / disabilita contorno |
+| `lineWidth(w)` | Spessore della linea di contorno |
+| `alpha(a)` | Opacità globale (0–1) |
+| `lineDash([n,n])` / `noDash()` | Abilita/disabilita tratteggio con pattern `[dash, gap]` |
+| `push()` / `pop()` | Salva / ripristina lo stato grafico corrente |
 
 ---
 
-## 6. Physics Visualisation
+#### 📐 Primitive
 
-### `vectorField(fxFn, fyFn, options?)`
+| Funzione | Descrizione |
+|----------|-------------|
+| `circle(x, y, r)` | Cerchio con centro e raggio |
+| `rect(x, y, w, h, r?)` | Rettangolo; `r` opzionale = raggi angoli arrotondati |
+| `ellipse(x, y, rx, ry)` | Ellisse con semiassi `rx`, `ry` |
+| `line(x1, y1, x2, y2)` | Segmento tra due punti |
+| `arrow(x1,y1,x2,y2,hs?,col?)` | Freccia con punta; `hs` = dimensione testa, `col` = colore |
+| `polygon([[x,y]…])` | Poligono chiuso da array di vertici |
+| `arc(x,y,r,a1,a2)` | Arco di cerchio da angolo `a1` a `a2` (rad) |
+| `bezier(...)` | Curva di Bézier cubica o quadratica |
+| `point(x,y,r?,col?)` | Punto (piccolo cerchio); `r` e `col` opzionali |
 
-Draws a 2D vector field as arrows.
+---
+
+#### ✏️ Testo
+
+| Funzione | Descrizione |
+|----------|-------------|
+| `text(str, x, y, opt?)` | Testo libero con opzioni di stile |
+| `label(str,x,y,size?,col?)` | Etichetta centrata sul punto dato |
+| `mathText(str,x,y,size?)` | Testo con simboli matematici (Unicode) |
+| `font(size,family,style?,w?)` | Imposta font: dimensione, famiglia, stile (italic), peso |
+| `textAlign(l\|c\|r)` | Allineamento orizzontale: left / center / right |
+| `textBase(top\|mid\|bot)` | Baseline verticale: top / middle / bottom |
+
+---
+
+#### 📊 Coordinate & Assi
+
+| Funzione | Descrizione |
+|----------|-------------|
+| `setCoords(xmin,xmax,ymin,ymax)` | Definisce il sistema di coordinate matematico (4 argomenti) |
+| `setCoords(xmin,xmax,aspect)` | Come sopra ma con aspect ratio; `aspect=1` → unità quadrate (3 argomenti) |
+| `resetCoords()` | Torna al sistema pixel nativo del canvas |
+| `axes(opt)` | Disegna assi cartesiani con frecce e tick; opzioni: colore, passo, label |
+| `grid(stepX,stepY,color)` | Disegna griglia di sfondo con passo e colore configurabili |
+
+---
+
+#### 📈 Grafici
+
+| Funzione | Descrizione |
+|----------|-------------|
+| `plot(fn, opt)` | Traccia `y = f(x)`; opzioni: range, colore, spessore, n. campioni |
+| `plotFill(fn,base,opt)` | Area sotto la curva (riempita fino a `base`) |
+| `parametric(xfn,yfn,opt)` | Curva parametrica `(x(t), y(t))`; opzioni: range t, campioni |
+| `scatter(pts, opt)` | Scatter plot da array `[[x,y],…]`; opzioni: colore, simbolo, size |
+| `barChart(data, opt)` | Istogramma a barre da array di valori o `{label,value}` |
+| `gaussian(mu,sigma,opt)` | Distribuzione gaussiana normalizzata `N(μ, σ)` |
+
+---
+
+#### 🔢 Campi & Onde
+
+| Funzione | Descrizione |
+|----------|-------------|
+| `vectorField(fx,fy,opt)` | Campo vettoriale su griglia; `fx(x,y)`, `fy(x,y)` = componenti |
+| `streamlines(fx,fy,opt)` | Linee di flusso del campo vettoriale |
+| `contour(fn, opt)` | Heatmap e/o curve di livello di `f(x,y)` |
+| `electricField(charges,opt)` | Campo elettrico generato da array di cariche `{x,y,q}` |
+| `equipotential(charges,opt)` | Superfici equipotenziali del campo elettrico |
+| `magneticField(wires,opt)` | Campo magnetico generato da fili `{x,y,I}` |
+| `wave(opt)` | Onda trasversale animabile; opzioni: ampiezza, lunghezza d'onda, fase |
+
+---
+
+#### ⚙️ Oggetti Fisici
+
+Funzioni di disegno per oggetti fisici stilizzati, utili per illustrare problemi di meccanica:
+
+| Funzione | Descrizione |
+|----------|-------------|
+| `spring(x1,y1,x2,y2,opt)` | Molla stilizzata tra due punti |
+| `pendulum(x0,y0,L,ang,opt)` | Pendolo: fulcro `(x0,y0)`, lunghezza `L`, angolo `ang` |
+| `mass(x,y,w,h,opt)` | Blocco massa rettangolare con etichetta opzionale |
+| `wall(x,y,h,opt)` | Parete (ostacolo fisico) tratteggiata |
+| `charge(x,y,q,opt)` | Rappresentazione stilizzata di una carica elettrica `q` |
+| `particle(x,y,vx,vy,opt)` | Particella con vettore velocità e traccia della traiettoria |
+
+---
+
+#### 📐 LaTeX sul Canvas
+
+| Funzione | Descrizione |
+|----------|-------------|
+| `latex(formula, x, y, opt)` | Renderizza una formula LaTeX inline nella posizione `(x,y)` |
+| `latexBlock(formula, x, y, opt)` | Formula display (grande, centrata) nella posizione `(x,y)` |
+| `clearLatexCache()` | Svuota la cache interna delle formule renderizzate |
+
+**Opzioni disponibili (`opt`):**
+
+| Opzione | Descrizione |
+|---------|-------------|
+| `opt.color` | Colore del testo (default: fill corrente) |
+| `opt.size` | Fattore di scala (1 = default, 2 = doppio) |
+| `opt.align` | Ancoraggio orizzontale: `left` / `center` / `right` |
+| `opt.vAlign` | Ancoraggio verticale: `top` / `middle` / `bottom` |
 
 ```js
-vectorField(
-  (x, y) => -y,
-  (x, y) =>  x,
-  { color: '#00d4ff', nx: 16, ny: 12, normalize: true, scale: 0.7 }
-);
-```
-
-### `streamlines(fxFn, fyFn, options?)`
-
-Traces streamlines through a vector field.
-
-```js
-streamlines((x, y) => -y, (x, y) => x, {
-  seeds: 30, steps: 400, dt: 0.02,
-  color: '#4488ff', alpha: 0.6,
-});
-```
-
-### `electricField(charges, options?)`
-
-Visualises the electric field of point charges. `charges` is an array of `[x, y, q]`.
-
-```js
-electricField([
-  [2, 0,  1],   // positive charge at (2, 0)
-  [-2, 0, -1],  // negative charge at (-2, 0)
-], { nx: 20, ny: 15 });
-```
-
-### `equipotential(charges, options?)`
-
-Colour-maps the electrostatic potential.
-
-```js
-equipotential([[2, 0, 1], [-2, 0, -1]], {
-  colorMap: { low: '#000066', mid: '#003300', high: '#660000' },
-});
-```
-
-### `magneticField(wires, options?)`
-
-Visualises the magnetic field of infinite current-carrying wires. `wires` is an array of `[x, y, I]`.
-
-```js
-magneticField([[0, 0, 1]], { color: '#aa66ff' });
-```
-
-### Physics Objects (decorative)
-
-These render a styled symbol at a given position.
-
-```js
-spring(x1, y1, x2, y2, options?)    // coil spring between two points
-pendulum(x, y, length, angle, options?)
-mass(x, y, radius?, options?)        // filled square mass block
-wall(x, y, width, height, options?)  // hatched wall
-charge(x, y, q, options?)            // ⊕ / ⊖ charge symbol
-particle(x, y, radius?, options?)    // circle with glow
+// Esempio
+latex('E = mc^2', 0, 2, { size: 1.5, align: 'center', color: '#00d4ff' })
+latexBlock('\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}', 0, 0)
 ```
 
 ---
 
-## 7. Animation & Input
+#### 📐 Formulario Fisico
 
-### `animate(callback)`
+Accesso a un database di formule fisiche con risoluzione automatica per la variabile incognita:
 
-Starts the animation loop. The callback is called every frame.
+| Funzione | Descrizione |
+|----------|-------------|
+| `formula(key, given)` | Risolve la formula `key` dati i valori noti in `given`; restituisce un `Qty` con `.formulaSym`, `.formulaLatex`, `.cat`, `.solvedFor` |
+| `formulaInfo(key)` | Metadati della formula: nome, simbolo, LaTeX, variabili, quali si possono risolvere |
+| `formulaList(cat?)` | Elenco di tutte le chiavi disponibili, filtrabili per categoria |
+| `formulaCategories()` | Lista delle categorie di formule disponibili |
+| `formulaSolve(key, var)` | Soluzione simbolica della formula via Algebrite |
 
 ```js
-animate((t, dt, frame) => {
-  bg('#020810');
-  circle(Math.cos(t) * 3, Math.sin(t) * 2, 0.3);
-});
+// Risolve la 2ª legge di Newton per F, dati m e a
+const res = formula('newton2', { m: 5, a: 9.8 })
+// res.value → 49 (N)
+latex(res.formulaLatex, 0, 1)  // disegna la formula usata
+
+// Gas ideale: risolve per T dati P, V, n
+formula('ideal_gas', { P: 1e5, V: 0.01, n: 0.5 })
 ```
 
-| Parameter | Type | Description |
-|---|---|---|
-| `t` | `number` | Elapsed time in seconds |
-| `dt` | `number` | Delta-time since last frame (seconds) |
-| `frame` | `number` | Frame counter (integer, starts at 1) |
+**Proprietà del risultato `res`:**
 
-### `stop()`
+| Proprietà | Descrizione |
+|-----------|-------------|
+| `res.formulaSym` | Espressione simbolica della formula usata |
+| `res.formulaLatex` | Stringa LaTeX della formula (per `latex()`) |
+| `res.cat` | Categoria fisica della formula |
+| `res.solvedFor` | Nome della variabile calcolata |
 
-Stops the animation loop (also available as the **■ STOP** button).
+---
 
-### Mouse Input
+#### ⚛️ Costanti Fisiche & Unità di Misura
+
+Sistema di grandezze fisiche con **propagazione automatica dell'incertezza** (CODATA):
+
+| Funzione | Descrizione |
+|----------|-------------|
+| `physConst('c')` | Costante fisica per chiave → `Qty` con incertezza CODATA (es. `'c'` = velocità della luce) |
+| `physConst('Fe')` | Elemento chimico → oggetto con `.z` (numero atomico) e proprietà fisiche |
+| `astroBody('Mars')` | Corpo celeste → oggetto con `M` (massa), `R` (raggio), `g`, `T` (periodo), ecc. |
+| `val(v, unit, unc?)` | Crea una grandezza `Qty` con valore, unità e incertezza opzionale |
+| `val('3.5 ± 0.01 m')` | Parsa una stringa con valore, incertezza e unità |
+| `convert(v, 'from', 'to')` | Converte rapidamente un numero tra unità → restituisce numero |
+| `listConst(filtro?)` | Cerca chiavi nel database delle costanti |
+
+**Metodi dell'oggetto `Qty`:**
+
+| Metodo | Descrizione |
+|--------|-------------|
+| `q.to('km')` | Converte in un'altra unità → nuovo `Qty` |
+| `q.mul(r)` / `q.div(r)` | Moltiplicazione / divisione con propagazione dell'errore |
+| `q.add(r)` / `q.sub(r)` | Addizione / sottrazione (stesse dimensioni) |
+| `q.pow(n)` / `q.sqrt()` | Potenza e radice con propagazione dell'errore |
+| `q.inSI()` | Converte nelle unità SI base |
+| `q.toString()` | Stringa `valore ± errore unità` |
+| `q.toStr(sf?, unit?)` | Stringa con controllo delle cifre significative |
+| `q.toLaTeX(sf?, unit?)` | Stringa LaTeX per uso con `latex()` |
+| `q.format(dec, unit?)` | Notazione fissa con numero fisso di decimali |
+| `q.uncertainty` | Incertezza assoluta 1σ in unità SI |
+| `qmul(a,b)` / `qdiv(a,b)` | Approccio funzionale alternativo |
+| `qadd(a,b)` / `qsub(a,b)` | Approccio funzionale alternativo |
+| `qpow(q,n)` / `qsqrt(q)` | Approccio funzionale alternativo |
 
 ```js
-onMouseMove((x, y, event) => {
-  // x, y in coordinate-system units
-});
+// Forza con propagazione errore
+const m = val('10.0 ± 0.1 kg')
+const a = val('9.81 ± 0.02 m/s^2')
+const F = m.mul(a)
+text(F.toStr(3), 0, 0)   // es: "98.1 ± 1.2 N"
+latex(F.toLaTeX(3), 0, -1)
 
-onClick((x, y, button, event) => {
-  // button: 0 = left, 1 = middle, 2 = right
-});
-
-const m = getMouse();   // { x, y, px, py, pressed, button }
-```
-
-### Keyboard Input
-
-```js
-onKeyDown((key, event) => { /* e.g. key === 'ArrowLeft' */ });
-onKeyUp((key, event) => { });
-
-const pressed = getKeys();   // Set<string> of currently held keys
-```
-
-### Time
-
-```js
-const t = getTime();   // elapsed seconds since last runCode()
+// Costante fisica
+const c = physConst('c')  // velocità della luce
+text(c.toString(), 0, 2)  // "299792458 ± 0 m/s"
 ```
 
 ---
 
-## 8. User Interface (lil-gui)
+#### 🎛️ Interfaccia Utente — lil-gui
 
-`createUI()` creates a floating panel of controls that overlay the canvas.
+Crea pannelli di controllo interattivi sovrapposti al canvas:
 
-**Requires** the [lil-gui](https://lil-gui.georgealways.com/) CDN library (loaded automatically when the page is open; included in standalone exports if `createUI` is used).
+| Funzione | Descrizione |
+|----------|-------------|
+| `createUI(opt?)` | Crea un pannello UI; opzioni: `title`, `width`, `top`, `right`, `left` |
+| `ui.slider(lbl,init,min,max,stp?)` | Slider numerico → leggi con `.value` |
+| `ui.number(lbl,init,min?,max?)` | Campo numerico editabile → `.value` |
+| `ui.checkbox(lbl,init)` | Checkbox booleana → `.value` (bool) |
+| `ui.color(lbl,init)` | Color picker → `.value` (stringa hex `#rrggbb`) |
+| `ui.text(lbl,init)` | Campo testo libero → `.value` |
+| `ui.select(lbl,init,opts[])` | Menu a tendina → `.value` |
+| `ui.button(lbl,fn)` | Pulsante con callback `fn()` |
+| `ui.label(lbl,text)` | Etichetta di sola lettura |
+| `ui.folder(name)` | Sottogruppo collassabile → stessa API di `ui` |
+| `ui.separator()` | Linea divisoria visiva |
+| `ui.open()` / `ui.close()` | Espande / comprime il pannello |
+| `ctrl.value = v` | Aggiorna il valore di un controllo da codice |
 
 ```js
-const ui = createUI({ title: 'Controls', width: 220, top: 10, right: 10 });
-
-const params = { freq: 1, amp: 1.5, color: '#00d4ff', show: true };
-
-const freqCtrl = ui.slider('Frequenza', params, 'freq', 0.1, 5, 0.1);
-const ampCtrl  = ui.slider('Ampiezza',  params, 'amp',  0.1, 3, 0.1);
-ui.color('Colore', params, 'color');
-ui.toggle('Mostra', params, 'show');
-ui.button('Reset', () => { params.freq = 1; params.amp = 1.5; });
+const ui = createUI({ title: 'Parametri', width: 220 })
+const freq = ui.slider('Frequenza', 1, 0.1, 10, 0.1)
+const col  = ui.color('Colore', '#00d4ff')
 
 animate(t => {
-  bg('#020810');
-  if (params.show)
-    plot(x => params.amp * Math.sin(params.freq * x), { color: params.color });
-});
-```
-
-### UI Methods
-
-| Method | Description |
-|---|---|
-| `ui.slider(label, obj, key, min, max, step?)` | Numeric slider |
-| `ui.number(label, obj, key, min?, max?, step?)` | Number input |
-| `ui.color(label, obj, key)` | Colour picker |
-| `ui.toggle(label, obj, key)` | Boolean checkbox |
-| `ui.select(label, obj, key, options)` | Dropdown (`options`: array or object) |
-| `ui.text(label, obj, key)` | String input |
-| `ui.button(label, fn)` | Button with callback |
-| `ui.folder(label)` | Collapsible sub-panel (returns a nested UI wrapper) |
-
-### Control Value Reference
-
-```js
-const ctrl = ui.slider('Speed', p, 'speed', 0, 10);
-ctrl.value;          // read current value
-ctrl.value = 5;      // set and update the slider
+  bg('#000')
+  stroke(col.value)
+  plot(x => Math.sin(freq.value * x))
+})
 ```
 
 ---
 
-## 9. LaTeX on Canvas
+#### 🧮 CAS — Algebrite (dall'editor)
 
-LaTeX is rendered via MathJax 3 into SVG and then drawn onto the canvas. Rendering is asynchronous — the result appears on the next frame after the first render.
+Accesso al motore di calcolo simbolico direttamente dal codice dell'editor:
 
-### `latex(expr, x, y, options?)`
+| Funzione | Descrizione |
+|----------|-------------|
+| `calc(expr)` | Esegue un'espressione CAS → `{ text, latex }` |
+| `calc('d(x^2,x)')` | Derivata → `"2*x"` |
+| `calc('integral(x^2,x)')` | Integrale indefinito |
+| `calc('factor(x^3-1)')` | Fattorizzazione |
+| `calc('expand((x+1)^4)')` | Espansione polinomiale |
+| `calc('simplify(sin(x)^2+cos(x)^2)')` | Semplificazione |
+| `calc('lim(sin(x)/x,x,0)')` | Limite per `x → 0` |
+| `calc('roots(x^2-5*x+6,x)')` | Radici/zeri del polinomio |
+| `calc('nroots(x^3-2,x)')` | Radici numeriche |
+| `calc('solve(x^2=4,x)')` | Risolve un'equazione |
+| `calc('subst(x=2, x^3+1)')` | Sostituisce un valore nell'espressione |
+| `calc('taylor(sin(x),x,0,5)')` | Sviluppo di Taylor all'ordine 5 |
+| `calc('eigenvalues([[1,2],[3,4]])')` | Autovalori di una matrice |
+| `calc('transpose([[1,2],[3,4]])')` | Trasposta di una matrice |
+| `calc('det([[a,b],[c,d]])')` | Determinante simbolico |
+| `calc('gcd(12,8)')` | Massimo Comun Divisore |
+| `calc('lcm(4,6)')` | Minimo Comune Multiplo |
+| `calc('isprime(17)')` | Test di primalità |
+| `calc('sum(k,k,1,10)')` | Sommatoria Σk per k=1..10 |
+| `calc('printlatex(expr)')` | Converte l'espressione in stringa LaTeX |
 
-Inline (display=false) or display-mode LaTeX at position `(x, y)`.
+**Proprietà del risultato `res`:**
 
-```js
-latex('E = mc^2', 0, 2);
-latex('\\int_0^\\infty e^{-x^2}\\,dx = \\frac{\\sqrt{\\pi}}{2}', -3, 1, {
-  color: '#00d4ff',
-  size:  22,
-  align: 'center',   // 'left' | 'center' | 'right'
-  base:  'middle',   // 'top' | 'middle' | 'bottom'
-});
-```
-
-### `latexBlock(expr, x, y, options?)`
-
-Like `latex` but with `display: true` (centred fraction/integral style).
-
-```js
-latexBlock('\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}', 0, 0, {
-  color: '#aa66ff', size: 28,
-});
-```
-
-### `clearLatexCache()`
-
-Clears the internal SVG cache. Call this if you are dynamically changing many different LaTeX expressions.
-
----
-
-## 10. Physica — Units & Constants
-
-Physica provides a dimensional quantity system with unit analysis and uncertainty propagation.
-
-### `val(value, unit?)`
-
-Creates a `Qty` object. `unit` is any registered unit string.
+| Proprietà | Descrizione |
+|-----------|-------------|
+| `res.text` | Risultato come stringa testuale |
+| `res.latex` | Risultato in LaTeX (per `latex()`) |
 
 ```js
-const d  = val(150, 'km');
-const t  = val(1.5, 'h');
-const v  = d.div(t);               // 100 km/h
-console.log(v.to('m/s').toStr(3)); // "27.8 m/s"
-```
+// Calcola la derivata e la disegna sul canvas
+const der = calc('d(sin(x)*exp(-x/3), x)')
+latex(der.latex, 0, 2, { size: 1.4, align: 'center' })
 
-### `Qty` Methods
-
-| Method | Description |
-|---|---|
-| `.to(unit)` | Convert to a different unit — throws if dimensions are incompatible |
-| `.toStr(sigfigs?, unit?)` | Formatted string: `"1.234 m/s"` |
-| `.toLaTeX(sigfigs?)` | LaTeX string: `"1.23 \\; \\mathrm{m/s}"` |
-| `.add(qty)` | Addition (same dimensions required) |
-| `.sub(qty)` | Subtraction |
-| `.mul(qty\|number)` | Multiplication |
-| `.div(qty\|number)` | Division |
-| `.pow(n)` | Integer power |
-| `.sqrt()` | Square root |
-| `.neg()` | Negate |
-| `.abs()` | Absolute value |
-| `.value` | Numeric value in SI base units |
-| `.unit` | Unit string |
-| `.uncertainty` | Absolute uncertainty (if set) |
-
-### `convert(value, fromUnit, toUnit)`
-
-Quick scalar conversion — no `Qty` object created.
-
-```js
-convert(100, 'km/h', 'm/s')   // → 27.7778
-convert(1,   'atm',  'Pa')    // → 101325
-```
-
-### `physConst(key, unit?)`
-
-Returns a `Qty` with the CODATA value and uncertainty. Optionally converts to `unit`.
-
-```js
-const c   = physConst('c');           // speed of light in m/s
-const c_  = physConst('c', 'km/s');   // in km/s
-const me  = physConst('me', 'MeV/c2'); // electron mass in MeV/c²
-
-console.log(c.toStr(5));   // "2.9979 × 10⁸ m/s"
-```
-
-### Physical Constants
-
-| Key | Symbol | Quantity | Unit |
-|---|---|---|---|
-| `c` | c | Speed of light | m/s |
-| `h` | h | Planck constant | J·s |
-| `hbar` | ℏ | Reduced Planck constant | J·s |
-| `e` / `e_c` | e | Elementary charge | C |
-| `k_B` | k_B | Boltzmann constant | J/K |
-| `N_A` | N_A | Avogadro constant | mol⁻¹ |
-| `R` | R | Molar gas constant | J/mol/K |
-| `G` | G | Gravitational constant | m³/s²/kg |
-| `mu0` | μ₀ | Permeability of vacuum | H/m |
-| `eps0` | ε₀ | Permittivity of vacuum | F/m |
-| `me` | mₑ | Electron mass | kg |
-| `mp` | mₚ | Proton mass | kg |
-| `mn` | mₙ | Neutron mass | kg |
-| `mu_m` | u | Atomic mass unit | kg |
-| `a0` | a₀ | Bohr radius | m |
-| `F_c` | F | Faraday constant | C/mol |
-| `sigma` | σ | Stefan–Boltzmann constant | W/m²/K⁴ |
-| `wien` | b | Wien displacement constant | m·K |
-| `mu_B` | μ_B | Bohr magneton | J/T |
-| `g0` | g₀ | Standard gravity | m/s² |
-| `H0` | H₀ | Hubble constant (Planck 2018) | km/s/Mpc |
-| `T_CMB` | T_CMB | CMB temperature | K |
-| `Lp` | l_P | Planck length | m |
-| `tp` | t_P | Planck time | s |
-| `alpha` | α | Fine-structure constant | — |
-
-Full list (40+ constants): call `listConst()` in the REPL.
-
-### `astroBody(name, property?)`
-
-Returns data for solar-system bodies. `property` can be `'mass'`, `'radius'`, `'distance'`, etc.
-
-```js
-astroBody('Earth')           // full data object
-astroBody('Jupiter', 'mass') // Qty for Jupiter's mass
-```
-
-Bodies: Sun, Moon, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune, Pluto, ISS (and more).
-
-### `chemElem(symbolOrNumber)`
-
-Returns periodic table data for an element.
-
-```js
-chemElem('Fe')   // Iron: { name, symbol, z, mass_u, ... }
-chemElem(79)     // Gold
-```
-
-### Unit Registry
-
-SciCanvas recognises **319 unit aliases** including:
-
-- **Length** — m, km, cm, mm, μm, nm, pm, Å, in, ft, yd, mi, nmi, ly, pc, kpc, Mpc, AU, R☉, R⊕ …
-- **Mass** — kg, g, mg, t, lb, oz, slug, u, Da, M☉, M⊕ …
-- **Time** — s, ms, μs, ns, min, h, d, yr, Myr, Gyr …
-- **Energy** — J, kJ, MJ, eV, keV, MeV, GeV, cal, kcal, kWh, BTU …
-- **Force** — N, kN, MN, lbf, dyn …
-- **Pressure** — Pa, kPa, MPa, bar, atm, torr, mmHg, psi …
-- **Temperature** — K, °C, °F (via `convert()`) …
-- **Particle physics mass** — MeV/c², GeV/c², keV/c², eV/c² …
-- **Compound** — m³/s²/kg, J·s, mol⁻¹, J/T, C/mol, F/m, H/m …
-
-### Arithmetic API
-
-For functional-style programming without chaining:
-
-```js
-qmul(a, b)   // a.mul(b)
-qdiv(a, b)   // a.div(b)
-qadd(a, b)   // a.add(b)
-qsub(a, b)   // a.sub(b)
-qpow(a, n)   // a.pow(n)
-qsqrt(a)     // a.sqrt()
-qneg(a)      // a.neg()
-qabs(a)      // a.abs()
+// Sviluppo di Taylor e tracciamento
+const t5 = calc('taylor(sin(x),x,0,5)')
+text('Taylor: ' + t5.text, 0, -2)
 ```
 
 ---
 
-## 11. Formulario — Physics Formulas
+#### 🎬 Animazione & Input
 
-The Formulario contains **52 physics, chemistry, and mathematics formulas** that are algebraically invertible — given any subset of variables, it solves for the missing ones.
-
-### `formula(key, given)`
-
-Returns a `Qty` with the solved variable attached with metadata.
-
-```js
-const res = formula('ke', { m: 0.145, v: 44.7 });
-// res           — Ek as a Qty (in J)
-// res.solvedFor — 'Ek'
-// res.formulaSym   — 'Ek = ½mv²'
-// res.formulaLatex — 'E_k = \\tfrac{1}{2} m v^2'
-// res.cat          — 'Energia'
-
-// Invert — solve for v given Ek and m:
-formula('ke', { Ek: 3.2, m: 0.1 }).toStr(4)  // → "8.000 m/s"
-```
-
-### `formulaInfo(key)`
-
-Returns full metadata for a formula.
+| Funzione | Descrizione |
+|----------|-------------|
+| `animate(fn(t,dt,frame))` | Avvia il loop di animazione; `fn` riceve tempo `t` (s), delta `dt` (s) e numero frame |
+| `stop()` | Ferma il loop di animazione |
+| `onMouseMove(fn(x,y))` | Callback al movimento del mouse (coordinate del sistema corrente) |
+| `onClick(fn(x,y,btn))` | Callback al click del mouse; `btn` = 0/1/2 |
+| `onKeyDown(fn(key))` | Callback alla pressione di un tasto |
+| `getMouse()` | Restituisce lo stato corrente del mouse `{x, y, down}` |
+| `getKeys()` | Restituisce l'insieme dei tasti attualmente premuti |
 
 ```js
-formulaInfo('ideal_gas')
-// { key, name, sym, latex, vars, solveFor, cat }
-```
-
-### `formulaList(category?)`
-
-Returns an array of keys, optionally filtered by category.
-
-```js
-formulaList()               // all 52 keys
-formulaList('Termodinamica') // ['ideal_gas', 'heat', 'carnot', 'stefan', 'wien']
-```
-
-### `formulaCategories()`
-
-Returns all category names.
-
-### `formulaSolve(key, varName)`
-
-Returns the symbolic solution string via Algebrite.
-
-```js
-formulaSolve('ke', 'v')   // "sqrt(2*Ek/m)"
-```
-
-### Formula Catalogue
-
-#### Dinamica
-| Key | Formula | Solves for |
-|---|---|---|
-| `newton2` | F = m·a | F, m, a |
-| `impulse` | J = F·Δt | J, F, Δt |
-| `momentum` | p = m·v | p, m, v |
-| `friction` | f = μ·N | f, μ, N |
-| `circ_accel` | a = v²/r | a, v, r |
-
-#### Cinematica
-| Key | Formula | Solves for |
-|---|---|---|
-| `moto_rett` | s = v·t | s, v, t |
-| `moto_acc` | v = v₀ + a·t | v, v₀, a, t |
-| `spazio_acc` | s = v₀t + ½at² | s, a, t |
-| `free_fall` | h = ½g·t² | h, t |
-
-#### Energia
-| Key | Formula | Solves for |
-|---|---|---|
-| `ke` | Ek = ½mv² | Ek, m, v |
-| `pe_grav` | Ep = mgh | Ep, m, h |
-| `pe_spring` | Ee = ½kx² | Ee, k, x |
-| `work` | W = F·d·cos θ | W, F, d |
-| `power` | P = W/t | P, W, t |
-| `mass_energy` | E = mc² | E, m |
-
-#### Gravitazione
-| Key | Formula | Solves for |
-|---|---|---|
-| `grav_force` | F = G·m₁m₂/r² | F, r |
-| `kepler3` | T² = 4π²r³/GM | T, r, M |
-| `escape_v` | v = √(2GM/r) | v, r |
-| `schwarzschild` | rs = 2GM/c² | rs, M |
-
-#### Termodinamica
-| Key | Formula | Solves for |
-|---|---|---|
-| `ideal_gas` | PV = nRT | P, V, n, T |
-| `heat` | Q = mcΔT | Q, m, ΔT |
-| `carnot` | η = 1 − Tc/Th | η, Th, Tc |
-| `stefan` | P = εσAT⁴ | P, T, A |
-| `wien` | λmax = b/T | λ, T |
-
-#### Onde
-| Key | Formula | Solves for |
-|---|---|---|
-| `wave_v` | v = f·λ | v, f, λ |
-| `doppler` | f' = f(v+v₀)/(v−vs) | f', f |
-| `pendulum` | T = 2π√(L/g) | T, L |
-| `spring_osc` | T = 2π√(m/k) | T, m, k |
-
-#### Ottica
-| Key | Formula | Solves for |
-|---|---|---|
-| `snell` | n₁ sin θ₁ = n₂ sin θ₂ | θ₂, n₂ |
-| `thin_lens` | 1/f = 1/do + 1/di | f, do, di |
-
-#### Elettromagnetismo
-| Key | Formula | Solves for |
-|---|---|---|
-| `ohm` | V = I·R | V, I, R |
-| `joule` | P = V·I | P, V, I |
-| `capacitor` | Q = C·V | Q, C, V |
-| `coulomb` | F = k·q₁q₂/r² | F, r |
-| `lorentz` | F = qvB sin θ | F, B, v |
-| `faraday` | ε = −N·dΦ/dt | ε, dΦ, dt |
-
-#### Fisica Moderna
-| Key | Formula | Solves for |
-|---|---|---|
-| `photon_e` | E = hf | E, f |
-| `photon_e_lam` | E = hc/λ | E, λ |
-| `debroglie` | λ = h/mv | λ, v, m |
-| `lorentz_factor` | γ = 1/√(1−v²/c²) | γ, v |
-| `time_dilation` | Δt' = γ·Δt | Δt', Δt |
-| `hydrogen` | En = −13.6/n² eV | En |
-
-#### Chimica
-| Key | Formula | Solves for |
-|---|---|---|
-| `molarity` | c = n/V | c, n, V |
-| `arrhenius` | k = A·e^(−Ea/RT) | k, T |
-| `henderson` | pH = pKa + log([A⁻]/[HA]) | pH, ratio |
-| `nernst` | E = E° − (RT/nF)·ln Q | E_cell |
-
-#### Astronomia
-| Key | Formula | Solves for |
-|---|---|---|
-| `hubble` | v = H₀·d | v, d |
-| `luminosity` | L = 4πR²σT⁴ | L, R, T |
-| `abs_magnitude` | m−M = 5 log(d/10 pc) | d, m, M |
-
-#### Matematica / Statistica
-| Key | Formula | Solves for |
-|---|---|---|
-| `quadratic` | x = (−b ± √Δ) / 2a | x₁, x₂ |
-| `compound_interest` | A = P(1+r/n)^(nt) | A, P, t |
-| `normal_pdf` | f(x) = Gaussian PDF | f |
-
----
-
-## 12. Algebrite — Computer Algebra
-
-Algebrite provides symbolic algebra inside SciCanvas. Requires a CDN connection (always available in full SciCanvas; included in standalone exports when `algebrite()` is called).
-
-### `algebrite(expression)`
-
-Evaluates an Algebrite expression and returns `{ text, symja, latex }`.
-
-```js
-algebrite('d(x^2 + 3*x, x)')         // → { text: "2*x+3", latex: "2 x+3", … }
-algebrite('integral(x^2, x)')         // → "1/3*x^3"
-algebrite('simplify(sin(x)^2+cos(x)^2)') // → "1"
-algebrite('factor(x^2 - 4)')          // → "(x+2)*(x-2)"
-algebrite('solve(x^2 - 4, x)')        // → "[2,-2]"
-algebrite('eigenvalues([[1,2],[3,4]])')
-```
-
-### Common Operations
-
-| Expression | Result |
-|---|---|
-| `d(f, x)` | Derivative of f with respect to x |
-| `integral(f, x)` | Indefinite integral |
-| `lim(f, x, a)` | Limit as x → a |
-| `taylor(f, x, 0, 5)` | Taylor series around 0 to order 5 |
-| `factor(expr)` | Factorise |
-| `expand(expr)` | Expand |
-| `simplify(expr)` | Simplify |
-| `solve(eq, x)` | Solve equation for x |
-| `roots(poly, x)` | Polynomial roots |
-| `nroots(poly, x)` | Numerical roots |
-| `subst(expr, x, val)` | Substitute value |
-| `gcd(a, b)` | Greatest common divisor |
-| `isprime(n)` | Primality test |
-| `printlatex(expr)` | Get LaTeX string |
-| `eigenvalues(M)` | Matrix eigenvalues |
-| `transpose(M)` | Matrix transpose |
-| `det(M)` | Matrix determinant |
-
-### Rendering a CAS result as LaTeX
-
-```js
-const res = algebrite('integral(sin(x)^2, x)');
-latexBlock(res.latex, 0, 1, { color: '#00ff88', size: 24 });
+animate((t, dt) => {
+  bg('#111')
+  const m = getMouse()
+  fill('#00d4ff')
+  circle(m.x, m.y, 0.3)   // cerchio segue il cursore
+})
 ```
 
 ---
 
-## 13. Math Utilities
+#### 🧮 Matematica & Utilità
 
-These are available as global functions inside every script.
+| Funzione / Costante | Descrizione |
+|---------------------|-------------|
+| `W()` / `H()` | Larghezza / altezza del canvas in pixel |
+| `PI`, `TAU`, `E` | Costanti matematiche (π, 2π, e) |
+| `sin`, `cos`, `tan`, `atan2`, … | Funzioni trigonometriche standard |
+| `sqrt`, `pow`, `exp`, `log`, … | Funzioni matematiche standard |
+| `random(a,b)` | Numero casuale uniforme nell'intervallo `[a,b]` |
+| `map(v,a,b,c,d)` | Rimappa `v` dall'intervallo `[a,b]` a `[c,d]` |
+| `lerp(a,b,t)` | Interpolazione lineare: `a + (b-a)*t` |
+| `clamp(v,min,max)` | Limita `v` all'intervallo `[min,max]` |
+| `getTime()` | Tempo corrente in secondi dall'avvio |
 
-### `map(value, inMin, inMax, outMin, outMax)`
+### 3.5 Gestione Script
 
-Linearly maps a value from one range to another.
+La sotto-scheda **💾 script** è un gestore di script personali con salvataggio persistente nel `localStorage` del browser.
 
-```js
-map(0.5, 0, 1, -5, 5)   // → 0
-map(75,  0, 100, 0, TAU) // → 4.712
-```
+| Azione | Descrizione |
+|--------|-------------|
+| **💾 Salva** | Apre una modale in cui si assegna un nome allo script corrente (max 80 caratteri). Lo script viene salvato nel `localStorage`. Se esiste già uno script con lo stesso nome, viene sovrascritto. |
+| **⬇ Download** | Scarica lo script selezionato come file `.js` / `.txt` sul computer. |
+| **⬆ Upload** | Apre un selettore file per caricare uno script da file locale (`.js`, `.txt`, `.sc`). Il contenuto viene caricato nell'editor. |
 
-### `lerp(a, b, t)`
+Gli script salvati appaiono come voci cliccabili nella lista: cliccando su uno di essi il codice viene caricato nell'editor. Quando la lista è vuota, viene mostrato il messaggio `Nessuno script salvato. Premi 💾 Salva per iniziare.`
 
-Linear interpolation. `t = 0` → `a`, `t = 1` → `b`.
-
-```js
-lerp(0, 10, 0.3)  // → 3
-```
-
-### `clamp(value, min, max)`
-
-Clamps a value to `[min, max]`.
-
-```js
-clamp(1.5, 0, 1)  // → 1
-```
-
-### `lerpColor(colorA, colorB, t)`
-
-Linearly interpolates between two hex colours.
-
-```js
-lerpColor('#000000', '#00d4ff', 0.5)  // → '#006880'
-```
-
-### `random(min?, max?)`
-
-Returns a random float. With no arguments: `[0, 1)`. With arguments: `[min, max)`.
-
-```js
-random()        // [0, 1)
-random(2, 5)    // [2, 5)
-```
-
-### `randomInt(min, max)`
-
-Returns a random integer in `[min, max]` inclusive.
-
-```js
-randomInt(1, 6)   // simulates a dice roll
-```
-
-### `dist(x1, y1, x2, y2)`
-
-Euclidean distance.
-
-```js
-dist(0, 0, 3, 4)  // → 5
-```
-
-### `norm(x, y)`
-
-Length of a 2D vector.
-
-### `gradient(x, y, x2, y2, ...colorStops)`
-
-Creates a linear gradient for use with `fill()` or `stroke()`.
-
-```js
-fill(gradient(-3, 0, 3, 0, '#001a2e', '#00d4ff'));
-rect(-3, -1, 6, 2);
-```
-
-### `radialGradient(cx, cy, r1, r2, ...colorStops)`
-
-Creates a radial gradient.
+> **Nota**: gli script sono memorizzati nel `localStorage` del browser. Cancellare la cache ne causerebbe la perdita. Usare **Download** per mantenere copie permanenti dei lavori importanti.
 
 ---
 
-## 14. REPL
+## 4. Modulo SIM — Simulatore Fisico 2D
 
-The **⚡ REPL** tab provides an interactive console for exploring the API.
+Il modulo **⛛ SIM** è un simulatore fisico bidimensionale completo che permette di costruire scene con corpi rigidi, vincoli meccanici e forze globali, e di osservarne l'evoluzione dinamica tramite integrazione numerica RK4.
 
-### Persistent Namespace
+### 4.1 Corpi Fisici
 
-The `_` object persists across commands.
+I corpi vengono aggiunti selezionando lo strumento dalla **palette Corpi** e cliccando sul canvas. Ogni corpo ha proprietà fisiche configurabili nel **Pannello Proprietà** laterale, visibile non appena il corpo è selezionato.
 
+| Strumento | Icona | Descrizione fisica |
+|-----------|-------|--------------------|
+| **Selezione** | `↖` | Modalità selezione. Clicca su un corpo per selezionarlo e visualizzarne le proprietà. Trascinalo per riposizionarlo. Non aggiunge nuovi oggetti. |
+| **Particella** | `●` | Massa puntiforme (momento di inerzia nullo). Ideale per proiettili, orbite gravitazionali, moto browniano, particelle in campo elettromagnetico. |
+| **Blocco** | `⮬` | Corpo rigido rettangolare con massa distribuita uniformemente. Risponde a forze, coppie e collisioni con rotazione. |
+| **Sfera** | `◉` | Corpo rigido circolare con inerzia di sfera piena (`I = 2/5 mr²`). Supporta collisioni elastiche e anelastiche. |
+| **Cilindro** | `⬤` | Corpo circolare con inerzia di cilindro pieno (`I = 1/2 mr²`). Utile per simulare rulli, dischi rotolanti, ingranaggi. |
+| **Asta** | `━` | Corpo allungato rigido con inerzia di asta (`I = 1/12 mL²`). Fondamentale per pendoli, leve, bracci articolati e meccanismi. |
+| **Anello** | `○` | Corpo circolare cavo con inerzia di anello (`I = mr²`). Permette di confrontare il comportamento dinamico con sfera e cilindro a parità di massa e raggio. |
+
+**Proprietà configurabili per ogni corpo nel pannello Properties:**
+- Massa (`m`, kg)
+- Posizione iniziale (`x`, `y`, in metri)
+- Orientamento iniziale (angolo in radianti o gradi)
+- Velocità lineare iniziale (`vx`, `vy`, m/s)
+- Velocità angolare iniziale (rad/s)
+- Coefficiente di restituzione (0 = perfettamente anelastico, 1 = perfettamente elastico)
+- Coefficiente di attrito
+- Colore e stile visivo
+
+### 4.2 Vincoli e Superfici
+
+I vincoli definiscono relazioni cinematiche tra corpi o tra corpo e ambiente. Si aggiungono selezionando lo strumento dalla **palette Vincoli** e cliccando su corpi o punti del canvas.
+
+| Strumento | Icona | Descrizione |
+|-----------|-------|-------------|
+| **Punto fisso** | `📌` | Ancora un punto di un corpo a una posizione fissa dello spazio. Impedisce la traslazione in quel punto ma permette la rotazione attorno ad esso. Fondamentale per pendoli, ruote, strutture ancorate. |
+| **Perno** | `🔘` | Collega un punto di un corpo a un punto di un altro con un perno rotante. Trasmette forze tra i due corpi ma permette la rotazione reciproca libera (cerniera cinematica). |
+| **Distanza** | `↔` | Mantiene costante la distanza tra due punti (uno su ciascun corpo, o uno fisso). Si comporta come un'asta rigida inestensibile o come un cavo teso. |
+| **Cerniera** | `🔗` | Variante del perno con possibilità di definire un angolo di riposo e una rigidità torsionale (molla angolare). Utile per snodi elastici e giunti con rigidezza controllata. |
+| **Guida H** | `⟶` | Vincola il corpo a scorrere solo lungo una guida orizzontale (solo traslazione in X). Simula binari, pistoni orizzontali, carrelli. |
+| **Guida V** | `⟵` | Come Guida H ma in direzione verticale (solo traslazione in Y). |
+| **Guida Ang** | `⟳` | Guida orientata a un angolo arbitrario: il corpo scorre solo lungo la direzione specificata. |
+| **Piano** | `⬜` | Aggiunge un piano di contatto orizzontale (pavimento/soffitto) con cui i corpi interagiscono fisicamente tramite collisioni e attrito. |
+| **Inclinato** | `╱` | Piano inclinato di un angolo configurabile. Permette di simulare rampe, scivoli, superfici oblique. |
+| **Fune** | `〜` | Vincolo di lunghezza massima (fune inestensibile): opera solo in trazione, è passivo quando allentato e si tende quando i punti raggiungerebbero il limite di distanza. |
+
+### 4.3 Forze Globali
+
+La sezione **Forze Globali** permette di configurare campi di forza che agiscono su **tutti i corpi** della scena simultaneamente. Ogni forza si attiva/disattiva con una checkbox. Il valore può essere una **costante numerica** o un'**espressione dinamica** che dipende dalle variabili `x`, `y` (posizione del corpo in metri) e `t` (tempo simulato in secondi).
+
+| Campo | Simbolo | Unità | Descrizione |
+|-------|---------|-------|-------------|
+| **Gravità** | `g` | m/s² | Accelerazione gravitazionale verso il basso. Default: `9.81`. Può essere un'espressione come `sin(t)` per simulare gravità oscillante. |
+| **Campo elettrico** | `Ex`, `Ey` | N/C | Campo elettrico nelle due componenti. Agisce sulle particelle cariche. Supporta espressioni spaziali (es. `sin(y)`, `cos(x)`). |
+| **Campo magnetico** | `Bz` | T | Campo magnetico perpendicolare al piano (asse Z). Genera la forza di Lorentz sulle particelle in moto. Può dipendere da `t` (es. `2*sin(t)`). |
+| **Attrito viscoso** | `b` | N·s/m | Forza proporzionale e opposta alla velocità (smorzamento lineare). Simula resistenza dell'aria o un fluido viscoso. Può dipendere da `x`, `y`, `t`. |
+
+**Variabili disponibili nelle espressioni:**
+
+| Variabile | Significato |
+|-----------|-------------|
+| `x`, `y` | Posizione attuale del corpo (m) |
+| `t` | Tempo fisico simulato corrente (s) |
+
+**Funzioni matematiche supportate nelle espressioni:** `sin`, `cos`, `tan`, `sqrt`, `exp`, `log`, `abs`, `pow`, `PI`.
+
+**Esempi di espressioni avanzate:**
 ```
-› _.r = val('3 m')
-← Qty { value: 3, unit: 'm', … }
-
-› _.A = val('PI * _.r.value^2 m^2')
-› _.A.toStr(4)
-← "28.27 m²"
+g  = 9.81 + 2*sin(t)       // gravità oscillante nel tempo
+Ex = -0.5*x                 // forza elastica verso l'origine (campo armonico)
+Bz = 1.5                    // campo magnetico costante
+b  = 0.1*exp(-t)            // attrito che decade esponenzialmente
 ```
 
-### Built-in Commands
+### 4.4 Integratore Numerico
 
-| Command | Description |
-|---|---|
-| `.help` | Show command reference |
-| `cls()` / `.clear` | Clear output |
-| `clc()` | Clear canvas |
-| `dir()` / `.vars` | List all `_.*` variables |
-| `reset()` | Clear namespace and canvas |
-| `print(v, …)` | Output to REPL (not browser console) |
+La sezione **Integratore** controlla i parametri numerici dell'integrazione delle equazioni del moto.
 
-### Keyboard Shortcuts
+| Parametro | Dettaglio |
+|-----------|-----------|
+| **`dt` — passo temporale** | Intervallo di integrazione in secondi. Range: `0.0001` s – `0.05` s, default `0.005` s. Valori più piccoli aumentano la precisione ma rallentano la simulazione; valori più grandi la accelerano ma possono introdurre instabilità numerica. |
+| **Metodo: RK4** | L'integratore usa il metodo di **Runge-Kutta al 4° ordine**: un metodo esplicito ad alta accuratezza per sistemi di ODE (errore locale O(dt⁵)), molto più stabile del metodo di Eulero per sistemi fisici realistici. |
+| **Mostra v** (checkbox) | Sovrappone al canvas la visualizzazione dei **vettori velocità** di ciascun corpo (frecce proporzionali a modulo e direzione). Utile per analizzare cinematica e conservazione del momento. |
 
-| Key | Action |
-|---|---|
-| `Enter` | Execute command |
-| `↑` / `↓` | Navigate command history (200 entries) |
-| `Tab` | Autocomplete API function names |
-| `Ctrl+L` | Clear output |
-| `Ctrl+Enter` | Execute (overrides global run shortcut) |
+### 4.5 CustomDraw
 
-### REPL Canvas Interaction
+La sezione **CustomDraw** permette di sovrapporre alla simulazione codice JavaScript personalizzato di disegno, eseguito a ogni frame del loop.
 
-Every command that draws something is reflected immediately on the canvas.
+| Controllo | Descrizione |
+|-----------|-------------|
+| **✏️ Modifica** | Apre un editor modale per scrivere la funzione di disegno custom. Il codice ha accesso al contesto canvas e allo stato corrente della simulazione (posizioni, velocità dei corpi, tempo `t`). |
+| **✕ Rimuovi** | Elimina il codice CustomDraw corrente. |
 
-```
-› bg('#020810')
-› setCoords(-5, 5, -4, 4)
-› fill('#00d4ff'); circle(0, 0, 1.5)
-← undefined
-```
+**Utilizzo tipico:** aggiungere grafici di grandezze fisiche in tempo reale (es. energia cinetica vs. tempo), annotazioni testuali, tracce di traiettoria, visualizzazione di campi, legende e misure sovrapposte alla scena simulata.
+
+### 4.6 Esempi Precaricati
+
+La libreria SIM include scene di esempio organizzate per tema fisico, accessibili dal pannello laterale.
+
+**Meccanica classica:**
+- ⬤ Pendolo semplice
+- ━ Pendolo con asta rigida
+- ◉ Moto del proiettile
+- ╱ Sfera su piano inclinato
+
+**Oscillazioni e Caos:**
+- 〜 Oscillatore massa-molla
+- 🔗 Doppio pendolo caotico
+- ◉ Attrito volvente
+- 🔔 Pendoli accoppiati
+- 🌀 Attrattore di Lorenz
+
+**Elettromagnetismo:**
+- ⚡ Particella in campo magnetico B
+
+**Collisioni e Gas:**
+- Collisioni elastiche 2D (urto tra sfere)
+- Gas ideale (particelle in una scatola)
+
+**Gravitazione e Onde:**
+- Problema dei tre corpi (gravitazione)
+- Corda vibrante
+
+### 4.7 Salvataggio e Caricamento Scene
+
+Le scene SIM possono essere salvate, scaricate e ricaricate tramite la sezione **Simulazioni Salvate** nel pannello laterale.
+
+| Azione | Descrizione |
+|--------|-------------|
+| **💾 Salva scena** | Salva la scena corrente nel `localStorage` con un nome utente. Tutti i corpi, vincoli, forze e parametri vengono memorizzati. |
+| **⬇ Download JSON** | Esporta la scena come file `.json` sul computer, contenente la descrizione completa di tutti gli oggetti e parametri. |
+| **⬆ Carica JSON** | Importa una scena da un file `.json` precedentemente scaricato, sostituendo quella corrente. |
+
+### 4.8 Controlli di Simulazione
+
+I controlli si trovano nella barra di intestazione quando il modulo SIM è attivo.
+
+| Controllo | Descrizione |
+|-----------|-------------|
+| `▶ AVVIA` / `⏸ PAUSA` | Avvia o sospende la simulazione fisica in tempo reale. |
+| `⏭` Step | Avanza esattamente di un passo `dt`. Permette l'analisi frame-by-frame dell'evoluzione del sistema. |
+| `⏮` Reset | Riporta tutti i corpi allo stato iniziale (posizioni e velocità di partenza) e azzera il tempo `t`. |
+| `⊘ Clear` | Rimuove tutti i corpi e i vincoli dalla scena, resettando completamente la simulazione. |
+| Display `t = 0.000 s` | Tempo fisico simulato corrente in secondi, aggiornato a ogni frame. |
+| Campo `vel×` | Moltiplicatore della velocità di simulazione: da `0.1×` (rallentato 10×) a `20×` (accelerato 20×), default `1×`. |
 
 ---
 
-## 15. Standalone HTML Export
+## 5. Modulo GEO — Geometria Euclidea Interattiva
 
-Click the **⬡ HTML** button in the header to generate a standalone HTML file.
+Il modulo **△ GEO** è un ambiente per la **costruzione e l'esplorazione di figure geometriche euclidee dinamiche**. Il principio fondamentale è il **ridisegno dinamico**: spostando un punto libero con il mouse, tutte le figure che dipendono da esso si aggiornano istantaneamente, permettendo di esplorare proprietà geometriche e verificare congetture in modo visivo e interattivo.
 
-### What is included
+### 5.1 Strumenti di Costruzione
 
-- Full-screen `<canvas>` (no editor, no panels)
-- The complete drawing engine (coordinate transforms, API, all drawing primitives)
-- Pan and zoom (drag / scroll-wheel)
-- Your script embedded in a `<script type="text/plain">` block
-- Only the CDN libraries that your script actually uses:
-  - **Algebrite** — only if `algebrite()` is called
-  - **MathJax** — only if `latex()` or `latexBlock()` is called
-  - **lil-gui** — only if `createUI()` is called
-- **Physica** (units, constants, Formulario) — only if any Physica API is called
+Tutti gli strumenti si trovano nella **palette Strumenti** del pannello laterale. Si seleziona uno strumento e si clicca sul canvas secondo le istruzioni contestuali.
 
-### What is stripped
+| Strumento | Icona | Descrizione |
+|-----------|-------|-------------|
+| **Seleziona** | `↖` | Selezione e modifica. Clicca per selezionare un oggetto, trascina i punti liberi per muovere la costruzione dinamicamente. Visualizza le proprietà dell'oggetto selezionato. |
+| **Punto** | `●` | Crea un nuovo punto libero nel canvas. Le coordinate sono editabili nel pannello Proprietà e visibili nella Vista Algebrica. |
+| **Retta** | `⟵` | Crea la retta passante per due punti. Si estende indefinitamente in entrambe le direzioni. |
+| **Segmento** | `━` | Crea un segmento tra due punti. La lunghezza è calcolata e mostrata nella Vista Algebrica, aggiornata al trascinamento. |
+| **Cerchio (C,r)** | `○` | Crea un cerchio dato il **centro** (primo click) e un **punto sul perimetro** (secondo click). Il raggio è modificabile trascinando il punto perimetrale. |
+| **Cerchio (3p)** | `◎` | Crea il **cerchio circoscritto** a tre punti: il cerchio è univocamente determinato dai tre punti selezionati in sequenza. |
+| **Perpendicolare** | `⊥` | Crea la retta perpendicolare a una retta o segmento dato, passante per un punto specificato. |
+| **Parallela** | `∥` | Crea la retta parallela a una retta o segmento dato, passante per un punto specificato. |
+| **Punto medio** | `⊕` | Marca il punto medio di un segmento o tra due punti. Rimane agganciato dinamicamente a entrambi i punti genitori. |
+| **Intersezione** | `✕` | Calcola e posiziona il punto (o i punti) di intersezione tra due oggetti (rette, segmenti, cerchi, in qualsiasi combinazione). |
+| **Poligono** | `⬡` | Crea un poligono chiuso specificando i vertici in sequenza. Calcola area e perimetro nella Vista Algebrica. |
+| **Slider** | `⇔` | Aggiunge uno **slider parametrico** interattivo sul canvas: un parametro numerico variabile in un intervallo definito, utilizzabile come dipendenza in altre costruzioni per animare figure o esplorare famiglie di curve parametricamente. |
+| **Bisettrice** | `∠` | Costruisce la bisettrice dell'angolo definito da tre punti (vertice al centro) o di due rette secanti. |
+| **Punto su oggetto** | `⊂` | Crea un punto vincolato a scorrere su un oggetto esistente (retta, segmento, cerchio): può essere trascinato liberamente ma rimane sempre sull'oggetto padre. |
+| **Angolo** | `∠` | Misura e visualizza l'angolo formato da tre punti (il secondo come vertice), in gradi o radianti, con aggiornamento dinamico. |
+| **Distanza** | `↔` | Misura e visualizza la distanza tra due punti o la lunghezza di un oggetto. Il valore si aggiorna in tempo reale al trascinamento. |
 
-- The code editor, REPL, API reference, examples, and script manager panels
-- The status bar, toolbar, and UI-scale controls
-- All editor-related JavaScript (≈ 40 % of the total code)
-- Unused libraries
+**Pulsante `+ AGGIUNGI`**: permette di aggiungere oggetti mediante input diretto di espressioni o coordinate numeriche, per una costruzione analitica precisa senza click sul canvas.
 
-### Error display
+**Pannello `Suggerimenti ▶`**: mostra istruzioni contestuali per lo strumento attivo, guidando l'utente passo passo nella costruzione corrente (es. "Clicca per definire il centro del cerchio").
 
-If the script throws, an error message appears in the bottom-left corner.
+### 5.2 Vista Algebrica
+
+La **Vista Algebrica** (`geo-alg-list`) è un pannello testuale che mostra la rappresentazione algebrica di tutti gli oggetti presenti nella costruzione, aggiornata in tempo reale:
+- **Punti**: coordinate `(x, y)`.
+- **Segmenti**: lunghezza.
+- **Rette**: equazione.
+- **Cerchi**: centro e raggio.
+- **Angoli**: valore in gradi o radianti.
+- **Distanze**: valore numerico.
+- **Slider**: nome del parametro e valore corrente.
+
+La Vista Algebrica supporta anche l'**input diretto di espressioni**: è possibile digitare coordinate o definizioni analitiche per creare oggetti senza usare gli strumenti grafici.
+
+Quando non sono presenti oggetti, viene mostrato: `Nessun oggetto. Usa gli strumenti o digita un'espressione.`
+
+La barra in basso alla Vista Algebrica comprende tre controlli:
+- **`⊘ Clear`**: cancella tutta la costruzione.
+- **`⊞ Griglia`**: attiva/disattiva la griglia di riferimento.
+- **`⌁ Scie`**: attiva/disattiva le scie dei punti dipendenti.
+
+### 5.3 Nota Costruzione
+
+Il campo **✎ Nota costruzione** è una `textarea` in cui è possibile inserire un commento o una spiegazione testuale relativa alla costruzione. Il testo viene **visualizzato direttamente sul canvas** come annotazione, ed è incluso nell'esportazione HTML standalone. Utile per documenti didattici, presentazioni o condivisione della costruzione con annotazioni esplicative.
+
+### 5.4 Griglia e Scie
+
+| Funzione | Icona | Descrizione |
+|----------|-------|-------------|
+| **Griglia** | `⊞` | Attiva/disattiva una griglia di riferimento sul canvas. Facilita la lettura delle coordinate e la costruzione di figure con misure precise. |
+| **Scie** | `⌁` | Attiva/disattiva la modalità **traccia**: quando attiva, i punti dipendenti lasciano una scia grafica al passaggio durante il trascinamento di un punto libero (o durante lo spostamento di uno slider). Permette di visualizzare il **luogo geometrico** descritto da un punto al variare della costruzione — strumento potente per l'esplorazione geometrica. |
+
+### 5.5 Pannello Proprietà
+
+Il pannello **Proprietà** (`geo-props`) appare quando un oggetto è selezionato. Permette di visualizzare e modificare:
+- **Nome/etichetta** dell'oggetto (rinominabile).
+- **Colore e stile** di visualizzazione: spessore linea, tratteggio, riempimento.
+- **Valori numerici**: coordinate per i punti, raggio per i cerchi, valore e intervallo per gli slider.
+- **Visibilità**: mostrare/nascondere l'etichetta o l'oggetto stesso.
+- **Vincoli**: informazioni sulle dipendenze (da quali oggetti dipende, quali oggetti dipendono da esso).
+
+### 5.6 Esempi Precaricati
+
+La libreria GEO include costruzioni classiche, organizzate per argomento. Cliccando su un esempio, la costruzione viene caricata sostituendo quella corrente.
+
+**Triangoli e Poligoni:**
+- △ Baricentro del triangolo (intersezione delle mediane)
+- ⊙ Cerchio circoscritto a un triangolo (intersezione degli assi dei lati)
+- △ Cerchio inscritto in un triangolo (intersezione delle bisettrici degli angoli)
+- ⊿ Dimostrazione visiva del Teorema di Pitagora
+
+**Rette e Angoli:**
+- ∥ Parallele e trasversale (angoli alterni, corrispondenti, coniugati)
+- ∠ Costruzione della bisettrice dell'angolo
+- ⊢ Teorema di Talete (segmenti proporzionali su rette parallele)
+
+**Cerchi:**
+- ○ Retta tangente da un punto esterno a un cerchio
+- ⊕ Asse radicale di due cerchi
+- ⊙ Cerchio dei nove punti di un triangolo
+
+**Costruzioni Classiche:**
+- ∞ Retta di Eulero di un triangolo (ortocentro, baricentro, circocentro allineati)
+- φ Sezione aurea (costruzione geometrica della proporzione φ = (1+√5)/2)
+- ⇔ Slider e dipendenze (dimostrazione del parametro dinamico e del luogo geometrico)
+
+### 5.7 Salvataggio e Caricamento
+
+Le costruzioni GEO si salvano e si condividono dalla sezione **Costruzioni Salvate** nel pannello laterale.
+
+| Azione | Descrizione |
+|--------|-------------|
+| **💾 Salva** | Salva la costruzione nel `localStorage` del browser con un nome utente. |
+| **⬇ Download** | Esporta la costruzione come file scaricabile sul computer (formato JSON). |
+| **⬆ Carica** | Importa una costruzione da file precedentemente scaricato. |
+
+### 5.8 Navigazione del Canvas
+
+| Azione | Gesto | Effetto |
+|--------|-------|---------|
+| **Pan** | Trascinamento su area vuota | Sposta la vista del canvas |
+| **Zoom** | Rotella del mouse | Ingrandisce o rimpicciolisce intorno al cursore |
+| **Reset vista** | Pulsante `⌖ RESET` nella barra di stato | Riporta a origine e zoom di default |
+
+La barra di stato mostra in tempo reale le **coordinate del cursore** (es. `x: 3.250, y: -1.500`) nelle unità di sistema del canvas, utile per costruzioni che richiedono precisione numerica.
 
 ---
 
-## 16. Global Constants
+## 6. Esportazione
 
-These are always available inside scripts.
+SciCanvas offre molteplici formati di esportazione per ogni modulo, pensati per condivisione, incorporamento e archiviazione.
 
-| Name | Value | Description |
-|---|---|---|
-| `PI` | 3.14159… | π |
-| `TAU` | 6.28318… | 2π |
-| `E` | 2.71828… | Euler's number |
-| `W` | canvas width in pixels | Read-only |
-| `H` | canvas height in pixels | Read-only |
-| `canvas` | `HTMLCanvasElement` | The canvas element |
-| `ctx` | `CanvasRenderingContext2D` | 2D rendering context |
-| `Math` | `Math` | Standard JS Math object |
-| `sin`, `cos`, `tan` | — | Aliases for `Math.sin` etc. |
-| `abs`, `sqrt`, `exp`, `log` | — | Aliases for Math functions |
-| `floor`, `ceil`, `round` | — | Aliases for Math functions |
-| `min`, `max` | — | Aliases for `Math.min`/`Math.max` |
-| `pow` | — | Alias for `Math.pow` |
+### Modulo CODICE
+
+| Formato | Pulsante | Descrizione |
+|---------|----------|-------------|
+| **PNG** | `↓ PNG` | Esporta il contenuto del canvas come immagine PNG ad alta fedeltà. La risoluzione in pixel corrisponde alla dimensione effettiva del canvas nell'interfaccia. |
+| **HTML standalone** | `⬡ HTML` | Genera un file HTML autonomo che include il codice sorgente dell'utente e lo esegue automaticamente al caricamento nel browser, **senza** mostrare l'interfaccia dell'editor. Ideale per la condivisione di visualizzazioni, per incorporarle in pagine web o per presentazioni. |
+
+### Modulo SIM
+
+| Formato | Pulsante | Descrizione |
+|---------|----------|-------------|
+| **HTML standalone interattivo** | `⬡ HTML` | Esporta l'intera simulazione (scena con corpi, vincoli, forze e parametri) come file HTML autonomo **completamente interattivo**. Il destinatario può aprire il file nel proprio browser e avviare, mettere in pausa, resettare e interagire con la simulazione senza bisogno di SciCanvas o di alcuna installazione. |
+
+### Modulo GEO
+
+| Formato | Pulsante | Descrizione |
+|---------|----------|-------------|
+| **PNG** | `↓ PNG` | Esporta la costruzione geometrica corrente come immagine PNG statica. |
+| **HTML standalone interattivo** | `⬡ HTML` | Esporta la costruzione geometrica come file HTML autonomo **dinamico**: i punti liberi rimangono trascinabili e le figure dipendenti si aggiornano in tempo reale, preservando l'interattività della geometria dinamica originale. |
 
 ---
 
-## 17. Coordinate Transforms
+## 7. Scorciatoie da Tastiera
 
-When `setCoords` is active, SciCanvas exposes the transform functions as part of the API. These are useful for mixing coordinate-system drawing with direct pixel-level canvas operations.
+| Scorciatoia | Contesto | Azione |
+|-------------|----------|--------|
+| `Ctrl + ↵` | Modulo CODICE (ovunque) | Esegue il codice nell'editor |
+| `Tab` | Editor (area di testo) | Inserisce l'indentazione |
+| `↑` / `↓` | REPL (campo di input) | Naviga la cronologia dei comandi |
+| `↵` | REPL (campo di input) | Invia l'espressione per la valutazione |
 
-| Function | Description |
-|---|---|
-| `sx(x)` | World x → canvas pixel x |
-| `sy(y)` | World y → canvas pixel y |
-| `wx(px)` | Canvas pixel x → world x |
-| `wy(py)` | Canvas pixel y → world y |
-| `sw(w)` | World width → pixel width |
-| `sh(h)` | World height → pixel height |
+---
 
-```js
-setCoords(-5, 5, -4, 4);
+## 8. Informazioni su Licenza e Autore
 
-// Draw a native canvas 2px red border at world (0,0):
-ctx.strokeStyle = 'red';
-ctx.lineWidth   = 2;
-ctx.strokeRect(sx(-1), sy(1), sw(2), sh(2));
+```
+Copyright © 2026 Leonardo Boselli
+
+Prompt Designer : Leonardo Boselli
+Programmer      : Claude Sonnet 4.6 <https://claude.ai/>
+
+Licenza: GNU General Public License v3.0
+         https://www.gnu.org/licenses/gpl-3.0.html
 ```
 
+SciCanvas è **software libero**: è possibile ridistribuirlo e/o modificarlo secondo i termini della **GNU General Public License** nella versione 3 pubblicata dalla Free Software Foundation.
+
+Il programma viene distribuito nella speranza che sia utile, ma **senza alcuna garanzia**; senza nemmeno la garanzia implicita di commerciabilità o idoneità a uno scopo particolare. Consultare la GNU GPL v3.0 per maggiori dettagli.
+
 ---
 
-*This manual covers SciCanvas v2025. For the latest version see the project repository.*
+*Documentazione generata per SciCanvas — repository: [https://github.com/YouDevIt/SciCanvas](https://github.com/YouDevIt/SciCanvas)*
