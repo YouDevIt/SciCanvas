@@ -51,7 +51,7 @@ SciCanvas integra **tre ambienti** indipendenti in un singolo file `.html`:
 
 | Risorsa | Link |
 |---------|------|
-| **Manuale completo (HTML)** | https://htmlpreview.github.io/?https://raw.githubusercontent.com/YouDevIt/SciCanvas/master/SciCanvas-manual.html |
+| **Manuale completo (HTML)** | [MANUAL.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/YouDevIt/SciCanvas/master/SciCanvas-manual.html) |
 | **Manuale completo (Markdown)** | [MANUAL.md](MANUAL.md) |
 
 ---
@@ -67,3 +67,13 @@ SciCanvas integra **tre ambienti** indipendenti in un singolo file `.html`:
 ---
 
 ## 📄 Licenza
+
+```
+Copyright © 2026 Leonardo Boselli
+
+Prompt Designer : Leonardo Boselli
+Programmer      : Claude Sonnet 4.6 <https://claude.ai/>
+```
+
+SciCanvas è distribuito sotto licenza **GNU General Public License v3.0**.  
+Consulta il file [LICENSE](https://www.gnu.org/licenses/gpl-3.0.html) o visita gnu.org per i dettagli.
